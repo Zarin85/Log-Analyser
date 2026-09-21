@@ -32,6 +32,8 @@ this repo. `release/` is gitignored; it's a build output, not source.
 
     packaging/
       run.bat / run.sh       # launcher copied into every package
+      stop.bat                # win-x64 only - run.bat starts both processes hidden
+                               # (no console windows), so there's nothing to Ctrl+C
       config.template.json   # copied to config.json on first run
       README.txt             # end-user instructions, copied into every package
     scripts/

@@ -3,8 +3,9 @@ LogAnalyser - local package
 
 Windows
 -------
-Double-click run.bat. Two console windows open (collector + API) and your
-browser opens to http://localhost:5171 after a few seconds.
+Double-click run.bat. Both the API and the collector start in the background
+(no console windows) and your browser opens to http://localhost:5171 after a
+few seconds. To stop LogAnalyser, double-click stop.bat.
 
 macOS
 -----

@@ -72,6 +72,11 @@ foreach ($rid in $rids.Keys) {
     Copy-Item (Join-Path $packagingDir "config.template.json") $stagingDir
     Copy-Item (Join-Path $packagingDir "README.txt") $stagingDir
     Copy-Item (Join-Path $packagingDir $runScript) $stagingDir
+    # Windows runs both processes fully hidden (no console windows), so unlike run.sh -
+    # where Ctrl+C in the visible terminal stops everything - there's nothing to Ctrl+C.
+    if ($rid -eq "win-x64") {
+        Copy-Item (Join-Path $packagingDir "stop.bat") $stagingDir
+    }
 
     $zipPath = Join-Path $releaseRoot "LogAnalyser-$Version-$rid.zip"
     if (Test-Path $zipPath) { Remove-Item $zipPath }
