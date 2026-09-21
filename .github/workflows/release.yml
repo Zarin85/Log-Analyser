@@ -10,6 +10,16 @@ on:
     tags:
       - "v*.*.*"
 
+# Deleting and re-pushing the same tag (e.g. to fix a typo before a proper version bump)
+# fires a second run against the same ref while an earlier run for that same tag might
+# still be building - without this, both runs eventually publish to the same release and
+# whichever one's publish step lands last wins, silently discarding the other's output.
+# Keying on github.ref (not run id) and cancelling in-progress makes a newer push for the
+# same tag supersede an older one instead of racing it.
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: true
+
 permissions:
   contents: write
 
