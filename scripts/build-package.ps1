@@ -50,13 +50,22 @@ foreach ($rid in $rids.Keys) {
     if (Test-Path $stagingDir) { Remove-Item $stagingDir -Recurse -Force }
     New-Item -ItemType Directory -Path $stagingDir -Force | Out-Null
 
+    # EnableCompressionInSingleFile compresses the bundled runtime/assemblies inside the
+    # single-file exe itself (separate from, and in addition to, the outer zip's own
+    # compression) - typically a large win for self-contained apps since most of their
+    # bulk is framework files. DebugType=None skips generating .pdb files end users don't
+    # need. Deliberately not using PublishTrimmed here - IL trimming can silently break
+    # reflection-based ASP.NET Core behavior and isn't something to risk without a full
+    # end-to-end test of the trimmed output.
     dotnet publish $apiProject -c Release -r $rid --self-contained true `
         -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true `
+        -p:EnableCompressionInSingleFile=true -p:DebugType=None `
         -o (Join-Path $stagingDir "api")
     if ($LASTEXITCODE -ne 0) { throw "API publish failed for $rid" }
 
     dotnet publish $collectorProject -c Release -r $rid --self-contained true `
         -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true `
+        -p:EnableCompressionInSingleFile=true -p:DebugType=None `
         -o (Join-Path $stagingDir "collector")
     if ($LASTEXITCODE -ne 0) { throw "Collector publish failed for $rid" }
 
