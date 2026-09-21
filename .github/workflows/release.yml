@@ -1,0 +1,105 @@
+name: Release
+
+# Fires on a pushed version tag (e.g. v1.0.0). Checks out this repo alongside its two
+# sibling app repos (same layout scripts/build-package.ps1 expects locally), builds all
+# four platform packages on a single Linux runner (dotnet publish cross-compiles, no
+# need for separate macOS/Windows runners), and publishes them as a GitHub release with
+# a formatted body instead of the default auto-generated notes.
+on:
+  push:
+    tags:
+      - "v*.*.*"
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout packaging repo
+        uses: actions/checkout@v4
+        with:
+          path: Log-Analyser
+          fetch-depth: 0 # full history, so git log/describe below can find the previous tag
+
+      - name: Checkout backend repo
+        uses: actions/checkout@v4
+        with:
+          repository: Zarin85/LogAnalyser
+          path: LogAnalyser
+
+      - name: Checkout frontend repo
+        uses: actions/checkout@v4
+        with:
+          repository: Zarin85/LogAnalyser-WebApp
+          path: LogAnalyser-WebApp
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "8.0.x"
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Resolve version
+        id: version
+        run: |
+          TAG="${GITHUB_REF#refs/tags/}"
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+          echo "version=${TAG#v}" >> "$GITHUB_OUTPUT"
+
+      - name: Build release packages
+        shell: pwsh
+        working-directory: Log-Analyser
+        run: ./scripts/build-package.ps1 -Version "${{ steps.version.outputs.version }}"
+
+      - name: Generate release notes
+        id: notes
+        working-directory: Log-Analyser
+        run: |
+          VERSION="${{ steps.version.outputs.version }}"
+          SHA="${GITHUB_SHA:0:7}"
+          PREV_TAG="$(git describe --tags --abbrev=0 HEAD^ 2>/dev/null || true)"
+
+          {
+            echo "_Automated build for commit \`$SHA\`._"
+            echo ""
+            echo "### 📦 Downloads"
+            echo ""
+            echo "| Platform | Package |"
+            echo "|---|---|"
+            echo "| 🪟 Windows (x64) | \`LogAnalyser-$VERSION-win-x64.zip\` |"
+            echo "| 🍎 macOS (Intel) | \`LogAnalyser-$VERSION-osx-x64.zip\` |"
+            echo "| 🍎 macOS (Apple Silicon) | \`LogAnalyser-$VERSION-osx-arm64.zip\` |"
+            echo "| 🐧 Linux (x64) | \`LogAnalyser-$VERSION-linux-x64.zip\` |"
+            echo ""
+            echo "### ✨ Core Highlights"
+            echo ""
+            echo "- **Automatic error grouping** — normalises and signature-hashes log lines so recurring errors collapse into one tracked problem instead of hundreds of near-duplicates"
+            echo "- **Cross-service detection** — a signature appearing in more than one service is flagged systemic and ranked Critical"
+            echo "- **Status lifecycle** — New / Spiking / Known / Suppressed / Resolved, recomputed automatically every collection run"
+            echo "- **Endpoint performance stats** — avg/min/max response time per endpoint, mined from the same log files"
+            echo "- **Redaction built-in** — emails, JWTs and labelled secrets are scrubbed before anything is served or displayed"
+            echo "- **Hard environment isolation** — each environment's data lives in its own SQLite file, nothing shared to leak across"
+            echo ""
+            echo "### 📝 Changes"
+            echo ""
+            if [ -n "$PREV_TAG" ]; then
+              git log "$PREV_TAG"..HEAD --pretty=format:"- %s (%h) by %an"
+            else
+              git log --pretty=format:"- %s (%h) by %an" -n 10
+            fi
+            echo ""
+          } > RELEASE_NOTES.md
+
+      - name: Publish GitHub release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.version.outputs.tag }}
+          name: "🔍 Log Analyser ${{ steps.version.outputs.tag }}"
+          body_path: Log-Analyser/RELEASE_NOTES.md
+          files: Log-Analyser/release/*.zip
