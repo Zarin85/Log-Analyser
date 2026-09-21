@@ -84,6 +84,7 @@ jobs:
         working-directory: Log-Analyser
         run: |
           VERSION="${{ steps.version.outputs.version }}"
+          TAG="${{ steps.version.outputs.tag }}"
           SHA="${GITHUB_SHA:0:7}"
           PREV_TAG="$(git describe --tags --abbrev=0 HEAD^ 2>/dev/null || true)"
 
@@ -141,12 +142,13 @@ jobs:
             echo ""
             echo "### 📦 Downloads"
             echo ""
+            REL="https://github.com/${{ github.repository }}/releases/download/$TAG"
             echo "| Platform | Package | Notes |"
             echo "|---|---|---|"
-            echo "| 🪟 Windows (x64) | \`LogAnalyser-$VERSION-win-x64.zip\` | double-click \`run.bat\` |"
-            echo "| 🍎 macOS (Intel) | \`LogAnalyser-$VERSION-osx-x64.zip\` | \`chmod +x run.sh && ./run.sh\` |"
-            echo "| 🍎 macOS (Apple Silicon) | \`LogAnalyser-$VERSION-osx-arm64.zip\` | same as above |"
-            echo "| 🐧 Linux (x64) | \`LogAnalyser-$VERSION-linux-x64.zip\` | same as above |"
+            echo "| 🪟 Windows (x64) | [LogAnalyser-$VERSION-win-x64.zip]($REL/LogAnalyser-$VERSION-win-x64.zip) | double-click \`run.bat\` |"
+            echo "| 🍎 macOS (Intel) | [LogAnalyser-$VERSION-osx-x64.zip]($REL/LogAnalyser-$VERSION-osx-x64.zip) | \`chmod +x run.sh && ./run.sh\` |"
+            echo "| 🍎 macOS (Apple Silicon) | [LogAnalyser-$VERSION-osx-arm64.zip]($REL/LogAnalyser-$VERSION-osx-arm64.zip) | same as above |"
+            echo "| 🐧 Linux (x64) | [LogAnalyser-$VERSION-linux-x64.zip]($REL/LogAnalyser-$VERSION-linux-x64.zip) | same as above |"
             echo ""
             echo "Each package is fully self-contained — no separate .NET, Node, or database"
             echo "install required on the machine running it."
