@@ -24,26 +24,30 @@ GitHub names):
 
 Requires the .NET 8 SDK and Node/npm on PATH, and both sibling repos present. Produces
 `release/LogAnalyser-{version}-{rid}.zip` for `win-x64`, `osx-x64`, `osx-arm64`, and
-`linux-x64` — each one a self-contained single-file publish of the API and collector,
-plus `packaging/run.bat` or `run.sh`, `config.template.json`, and `README.txt` from
-this repo. `release/` is gitignored; it's a build output, not source.
+`linux-x64` — each one a self-contained single-file publish of the API (which also runs
+the collector in-process, see `CollectorBackgroundService` in the backend repo), plus
+`README.txt` and, depending on platform, `stop.bat` or `run.sh` from this repo.
+`release/` is gitignored; it's a build output, not source.
+
+A package is a single exe: on Windows it's published with `OutputType=WinExe` so it
+opens no console window, and `Program.cs` auto-creates `config.json` and opens the
+dashboard in the browser itself once it's listening - nothing else to launch or unblock.
 
 ## Layout
 
     packaging/
-      run.bat / run.sh       # launcher copied into every package
-      stop.bat                # win-x64 only - run.bat starts both processes hidden
-                               # (no console windows), so there's nothing to Ctrl+C
-      config.template.json   # copied to config.json on first run
-      README.txt             # end-user instructions, copied into every package
+      run.sh      # launcher for macOS/Linux (still shows a terminal window there -
+                   # not a WinExe-equivalent, so run.sh remains the least-friction UX)
+      stop.bat    # win-x64 only - the exe has no console window to Ctrl+C
+      README.txt  # end-user instructions, copied into every package
     scripts/
-      build-package.ps1      # does the actual building/publishing/zipping
+      build-package.ps1  # does the actual building/publishing/zipping
 
 ## Updating an existing install
 
-Replace the `api/` and `collector/` folders with the ones from the new release. Leave
-`config.json`, `app.db`, and `environments/` alone — that's where accounts, projects,
-and history live.
+Replace `LogAnalyser.Api.exe` (Windows) or `LogAnalyser.Api` + `run.sh` (macOS/Linux)
+with the ones from the new release. Leave `config.json`, `app.db`, and `environments/`
+alone — that's where accounts, projects, and history live.
 
 ## Publishing a GitHub release
 
