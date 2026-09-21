@@ -23,17 +23,23 @@ jobs:
           path: Log-Analyser
           fetch-depth: 0 # full history, so git log/describe below can find the previous tag
 
+      # LogAnalyser and LogAnalyser-WebApp are private repos - the default GITHUB_TOKEN
+      # only has access to the repo a workflow runs in, so checking out a sibling
+      # private repo needs a PAT with read access to both, stored as REPO_ACCESS_TOKEN
+      # (Settings -> Secrets and variables -> Actions on this repo).
       - name: Checkout backend repo
         uses: actions/checkout@v4
         with:
           repository: Zarin85/LogAnalyser
           path: LogAnalyser
+          token: ${{ secrets.REPO_ACCESS_TOKEN }}
 
       - name: Checkout frontend repo
         uses: actions/checkout@v4
         with:
           repository: Zarin85/LogAnalyser-WebApp
           path: LogAnalyser-WebApp
+          token: ${{ secrets.REPO_ACCESS_TOKEN }}
 
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
