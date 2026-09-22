@@ -43,6 +43,7 @@ jobs:
           repository: Zarin85/LogAnalyser
           path: LogAnalyser
           token: ${{ secrets.REPO_ACCESS_TOKEN }}
+          fetch-depth: 0 # full history, so the release-notes step can list its recent commits
 
       - name: Checkout frontend repo
         uses: actions/checkout@v4
@@ -50,6 +51,7 @@ jobs:
           repository: Zarin85/LogAnalyser-WebApp
           path: LogAnalyser-WebApp
           token: ${{ secrets.REPO_ACCESS_TOKEN }}
+          fetch-depth: 0 # full history, so the release-notes step can list its recent commits
 
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
@@ -81,12 +83,11 @@ jobs:
 
       - name: Generate release notes
         id: notes
-        working-directory: Log-Analyser
         run: |
           VERSION="${{ steps.version.outputs.version }}"
           TAG="${{ steps.version.outputs.tag }}"
           SHA="${GITHUB_SHA:0:7}"
-          PREV_TAG="$(git describe --tags --abbrev=0 HEAD^ 2>/dev/null || true)"
+          PREV_TAG="$(git -C Log-Analyser describe --tags --abbrev=0 HEAD^ 2>/dev/null || true)"
 
           {
             echo "_Automated build for commit \`$SHA\`._"
@@ -164,13 +165,28 @@ jobs:
             echo ""
             echo "### 📝 Recent commits"
             echo ""
+            echo "**Packaging (Log-Analyser)**"
             if [ -n "$PREV_TAG" ]; then
-              git log "$PREV_TAG"..HEAD --pretty=format:"- %s (%h) by %an"
+              git -C Log-Analyser log "$PREV_TAG"..HEAD --pretty=format:"- %s (%h) by %an"
             else
-              git log --pretty=format:"- %s (%h) by %an" -n 10
+              git -C Log-Analyser log --pretty=format:"- %s (%h) by %an" -n 10
             fi
             echo ""
-          } > RELEASE_NOTES.md
+            echo ""
+            # The app repos (LogAnalyser, LogAnalyser-WebApp) aren't tagged per release, so
+            # there's no reliable "since last release" anchor in them the way there is for
+            # this repo - list their most recent commits instead of pretending to know a
+            # cutoff. This at least surfaces the actual app changes, which the previous
+            # version of this step never did (it only ever looked at this repo's own history,
+            # which has no application code of its own).
+            echo "**Backend (LogAnalyser)**"
+            git -C LogAnalyser log --pretty=format:"- %s (%h) by %an" -n 15
+            echo ""
+            echo ""
+            echo "**Frontend (LogAnalyser-WebApp)**"
+            git -C LogAnalyser-WebApp log --pretty=format:"- %s (%h) by %an" -n 15
+            echo ""
+          } > Log-Analyser/RELEASE_NOTES.md
 
       - name: Publish GitHub release
         uses: softprops/action-gh-release@v2
