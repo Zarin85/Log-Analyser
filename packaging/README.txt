@@ -5,7 +5,7 @@ Windows
 -------
 Double-click LogAnalyser.Api.exe. No console window opens, and your browser
 opens to http://localhost:5171 automatically after a few seconds. To stop
-LogAnalyser, double-click stop.bat.
+LogAnalyser, click your name in the top bar, then Quit Log Analyser.
 
 macOS / Linux
 -------------
@@ -21,8 +21,9 @@ First time use
 Sign up for an account in the browser, create a project (list the services
 whose logs you want analysed), then add an environment with the log path
 you have access to. LogAnalyser checks for new environments/log paths
-automatically every 10 minutes, and immediately the first time you add or
-change one.
+automatically every 10 minutes by default, and immediately the first time you
+add or change one. To change how often, click your name in the top bar and
+pick 2, 5, 7 or 10 minutes under "Check logs every".
 
 Updating to a new version
 --------------------------

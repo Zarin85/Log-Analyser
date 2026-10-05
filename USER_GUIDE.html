@@ -1,0 +1,224 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Log Analyser User Guide</title>
+<style>
+:root{
+  --bg:#f6f7fb;--card:#fff;--ink:#16192c;--muted:#5d647a;--line:#e4e7f0;
+  --brand:#5b5bf0;--brand2:#8b5cf6;--soft:#eef0ff;
+  --ok:#16a34a;--warn:#d97706;--bad:#dc2626;--info:#2563eb;
+  --shadow:0 1px 2px rgba(20,24,60,.05),0 8px 24px rgba(20,24,60,.06);
+}
+@media (prefers-color-scheme:dark){:root{
+  --bg:#0e1020;--card:#171a2e;--ink:#eceefb;--muted:#9aa1bd;--line:#2a2e4a;--soft:#22264a;
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px rgba(0,0,0,.25);
+}}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.65 Inter,system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
+code{font:.88em ui-monospace,SFMono-Regular,Consolas,monospace;background:var(--soft);padding:.15em .45em;border-radius:6px}
+a{color:var(--brand)}
+.hero{background:linear-gradient(135deg,var(--brand),var(--brand2));color:#fff;padding:64px 20px 88px;text-align:center}
+.hero .tag{display:inline-block;background:rgba(255,255,255,.18);padding:4px 14px;border-radius:99px;font-size:13px;font-weight:600;letter-spacing:.04em}
+.hero h1{font-size:clamp(32px,6vw,52px);line-height:1.1;margin:18px 0 12px;letter-spacing:-.02em}
+.hero p{max-width:640px;margin:0 auto;font-size:18px;opacity:.95}
+.wrap{max-width:900px;margin:-48px auto 0;padding:0 16px 64px}
+nav{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;background:var(--card);border-radius:16px;padding:12px;box-shadow:var(--shadow);margin-bottom:28px}
+nav a{text-decoration:none;color:var(--ink);font-size:14px;font-weight:600;padding:7px 14px;border-radius:99px;background:var(--soft)}
+nav a:hover{background:var(--brand);color:#fff}
+section{background:var(--card);border-radius:20px;box-shadow:var(--shadow);padding:32px;margin-bottom:24px}
+h2{margin:0 0 6px;font-size:26px;letter-spacing:-.01em}
+h3{margin:28px 0 8px;font-size:18px}
+.lead{color:var(--muted);margin:0 0 20px}
+.example{background:var(--soft);border-radius:14px;padding:16px 20px;margin:14px 0}
+.grid{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(230px,1fr))}
+.feature{border:1px solid var(--line);border-radius:14px;padding:16px}
+.feature b{display:block;margin:6px 0 2px}
+.feature span.i{font-size:24px}
+.steps{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));counter-reset:s}
+.step{border:1px solid var(--line);border-radius:14px;padding:18px 18px 18px 18px;position:relative}
+.step::before{counter-increment:s;content:counter(s);display:grid;place-items:center;width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,var(--brand),var(--brand2));color:#fff;font-weight:700;margin-bottom:10px}
+.step b{display:block;margin-bottom:4px}
+.callout{display:flex;gap:12px;border-radius:14px;padding:14px 16px;margin:16px 0;font-size:15px}
+.callout.warn{background:rgba(217,119,6,.12);border:1px solid rgba(217,119,6,.35)}
+.callout.safe{background:rgba(22,163,74,.1);border:1px solid rgba(22,163,74,.35)}
+.callout.tip{background:var(--soft);border:1px solid var(--line)}
+.path{font:14px ui-monospace,Consolas,monospace;background:#12142a;color:#cfd3ff;border-radius:12px;padding:14px 16px;overflow:auto;white-space:pre}
+.path em{color:#ffd479;font-style:normal}
+table{width:100%;border-collapse:collapse;margin:12px 0;font-size:15px}
+th,td{text-align:left;padding:10px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+.pill{display:inline-block;font-size:13px;font-weight:700;padding:2px 11px;border-radius:99px;white-space:nowrap}
+.p-new{background:rgba(37,99,235,.14);color:var(--info)}
+.p-spike{background:rgba(220,38,38,.14);color:var(--bad)}
+.p-known{background:rgba(93,100,122,.18);color:var(--muted)}
+.p-sup{background:rgba(217,119,6,.15);color:var(--warn)}
+.p-res{background:rgba(22,163,74,.15);color:var(--ok)}
+.p-crit{background:var(--bad);color:#fff}.p-high{background:var(--warn);color:#fff}
+.p-med{background:#eab308;color:#222}.p-low{background:var(--ok);color:#fff}
+details{border:1px solid var(--line);border-radius:12px;padding:12px 16px;margin:10px 0}
+summary{cursor:pointer;font-weight:600}
+details p{margin:8px 0 0;color:var(--muted)}
+footer{text-align:center;color:var(--muted);font-size:14px;padding:8px 16px 40px}
+@media print{.hero{padding:32px}nav{display:none}section{box-shadow:none;border:1px solid var(--line);break-inside:avoid}}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <span class="tag">USER GUIDE</span>
+  <h1>Log Analyser</h1>
+  <p>Stop reading logs line by line. Turn a flood of log lines into a short list of problems you can act on.</p>
+</header>
+
+<div class="wrap">
+<nav>
+  <a href="#what">What it is</a><a href="#start">Get started</a><a href="#setup">Set up logs</a>
+  <a href="#dashboard">Dashboard</a><a href="#investigate">Investigate</a><a href="#more">More pages</a>
+  <a href="#refresh">Refresh rate</a><a href="#stop">Stop</a><a href="#faq">FAQ</a>
+</nav>
+
+<section id="what">
+  <h2>What is Log Analyser?</h2>
+  <p class="lead">It reads your <code>.log</code> files, groups repeating errors together, and shows them on a simple web page. Instead of 90 near-identical error lines, you see <b>1 problem that happened 90 times</b>.</p>
+  <div class="grid">
+    <div class="feature"><span class="i">🧩</span><b>Errors grouped</b>No more scrolling through duplicates.</div>
+    <div class="feature"><span class="i">🚦</span><b>Clear status</b>See what is New, Spiking or Known.</div>
+    <div class="feature"><span class="i">📍</span><b>Where it happened</b>Class, method, file and line.</div>
+    <div class="feature"><span class="i">⏱️</span><b>Response times</b>Average, fastest and slowest per endpoint.</div>
+  </div>
+  <div class="callout safe"><span>🔒</span><span>It runs on <b>your own computer</b>. Logs never leave it, nothing goes to the cloud, and it only <b>reads</b> your logs. It never changes them.</span></div>
+</section>
+
+<section id="start">
+  <h2>Get started in 3 steps</h2>
+  <p class="lead">About two minutes. Nothing else to install.</p>
+  <div class="steps">
+    <div class="step"><b>Download</b>Get the zip for your computer from the <a href="https://github.com/Zarin85/Log-Analyser/releases/latest">releases page</a> and extract it.</div>
+    <div class="step"><b>Start it</b>Windows: double-click <code>LogAnalyser.Api.exe</code>.<br>Mac/Linux: run <code>./run.sh</code> in Terminal.</div>
+    <div class="step"><b>Open it</b>Your browser opens at <code>http://localhost:5171</code>. Sign up (the account stays on your computer).</div>
+  </div>
+  <div class="callout warn"><span>⚠️</span><span>Windows may say it "protected your PC" because the app is not code-signed. Click <b>More info → Run anyway</b>.</span></div>
+</section>
+
+<section id="setup">
+  <h2>Set up your logs</h2>
+  <p class="lead">You do this once. Tell the app <b>what</b> to watch (a project) and <b>where</b> the logs are (an environment).</p>
+
+  <h3>Your logs must look like this</h3>
+  <ul>
+    <li>Files end in <code>.log</code>.</li>
+    <li>Each line starts like <code>2025-01-31 14:05:09,123 -- ERROR -- service-name -- message</code></li>
+    <li>Each service has its own folder. Sub-folders are fine.</li>
+  </ul>
+
+  <h3>1. Create a project</h3>
+  <p>A <b>project</b> is one application. Click <b>New project</b>, name it, and add one row per <b>service</b>: the folder name of its logs, <b>without</b> a prefix like <code>dev-</code>.</p>
+
+  <h3>2. Add an environment</h3>
+  <p>An <b>environment</b> is one place the logs live, such as <code>dev</code> or <code>production</code>. Open your project and click <b>New environment</b>.</p>
+
+  <div class="example">
+    <b>Example.</b> Your logs are in:
+    <div class="path">\\server\AKS-Dev-Logs\business-clm\<em>dev-</em><em>business-clm-analytics</em>\ClmAnalyticsWebService</div>
+    <table>
+      <tr><th>Where</th><th>Field</th><th>Value</th></tr>
+      <tr><td>Project</td><td>Service</td><td><code>business-clm-analytics</code></td></tr>
+      <tr><td>Environment</td><td>Name</td><td><code>dev</code></td></tr>
+      <tr><td>Environment</td><td>Log path</td><td><code>\\server\AKS-Dev-Logs\business-clm</code></td></tr>
+      <tr><td>Environment</td><td>Folder prefix</td><td><code>dev-</code></td></tr>
+    </table>
+    The app joins <i>log path + prefix + service</i>, then reads every <code>.log</code> file below it, including sub-folders like <code>ClmAnalyticsWebService</code>. You do not type the sub-folder.
+  </div>
+
+  <p>After saving, wait a few minutes. The app re-checks by itself every <b>10 minutes</b> by default. You can change this to 2, 5, 7 or 10 minutes (see <a href="#refresh">How often it checks</a>).</p>
+  <table>
+    <tr><th>Label on the environment card</th><th>Meaning</th></tr>
+    <tr><td><i>(none)</i></td><td>Working normally</td></tr>
+    <tr><td><b>not collected yet</b></td><td>The first check is still running</td></tr>
+    <tr><td><b>cannot read log files</b></td><td>Wrong path, share offline, or no permission. Hover to see why, then <b>Edit</b></td></tr>
+  </table>
+</section>
+
+<section id="dashboard">
+  <h2>Read your dashboard</h2>
+  <p class="lead">Click <b>Open</b> on an environment. You get key numbers, charts, and a table with <b>one row per problem</b>.</p>
+  <ul>
+    <li><b>Search</b> by message, service or class, and <b>sort</b> by any column.</li>
+    <li>Tick <b>Show all</b> to include everything. Otherwise you see only New and Spiking.</li>
+    <li>Click a row to see its details.</li>
+  </ul>
+
+  <h3>Statuses</h3>
+  <table>
+    <tr><th>Status</th><th>Meaning</th><th>Set by</th></tr>
+    <tr><td><span class="pill p-new">New</span></td><td>First time this problem has been seen</td><td>Automatic</td></tr>
+    <tr><td><span class="pill p-spike">Spiking</span></td><td>Suddenly happening much more than usual</td><td>Automatic</td></tr>
+    <tr><td><span class="pill p-known">Known</span></td><td>Been around a while, at a normal level</td><td>Automatic</td></tr>
+    <tr><td><span class="pill p-sup">Suppressed</span></td><td>You chose to ignore it</td><td>You</td></tr>
+    <tr><td><span class="pill p-res">Resolved</span></td><td>You marked it fixed. If it comes back it becomes <b>New</b></td><td>You</td></tr>
+  </table>
+
+  <h3>Severities</h3>
+  <table>
+    <tr><th>Severity</th><th>When</th></tr>
+    <tr><td><span class="pill p-crit">Critical</span></td><td>The problem appears in more than one service</td></tr>
+    <tr><td><span class="pill p-high">High</span></td><td>It is spiking, or has happened 500+ times</td></tr>
+    <tr><td><span class="pill p-med">Medium</span></td><td>It is new, or has happened 20+ times</td></tr>
+    <tr><td><span class="pill p-low">Low</span></td><td>Everything else</td></tr>
+  </table>
+</section>
+
+<section id="investigate">
+  <h2>Investigate a problem</h2>
+  <p class="lead">Click a problem to see everything about it.</p>
+  <div class="grid">
+    <div class="feature"><span class="i">💬</span><b>What happened</b>An example of the error message.</div>
+    <div class="feature"><span class="i">📍</span><b>Where</b>Service, class, method, file and line.</div>
+    <div class="feature"><span class="i">🔗</span><b>Trace ID</b>Find the same request in your other tools.</div>
+    <div class="feature"><span class="i">📈</span><b>History</b>When it happened, with full stack traces.</div>
+  </div>
+  <p>Then decide: <b>Suppress</b> it if it is harmless noise, or <b>Resolve</b> it once you have fixed it.</p>
+  <div class="callout safe"><span>🔒</span><span>Emails, tokens and passwords are replaced with <code>[REDACTED]</code> before they are shown.</span></div>
+</section>
+
+<section id="more">
+  <h2>More pages</h2>
+  <div class="grid">
+    <div class="feature"><span class="i">🕒</span><b>Timeline</b>Every error in time order. Great for "what went wrong at 2pm yesterday?"</div>
+    <div class="feature"><span class="i">⚡</span><b>Performance</b>Average, fastest and slowest response for each endpoint.</div>
+    <div class="feature"><span class="i">🧱</span><b>Service view</b>Click any service name for its 30-day trend and problems.</div>
+    <div class="feature"><span class="i">👤</span><b>Account</b>Click your name in the top bar to sign out or quit.</div>
+  </div>
+</section>
+
+<section id="refresh">
+  <h2>How often it checks</h2>
+  <p class="lead">By default the app looks for new log lines every <b>10 minutes</b>. You choose how fresh you want your data.</p>
+  <p>Click your name in the top bar and use <b>Check logs every</b> to pick:</p>
+  <p><span class="pill p-new">2 minutes</span> <span class="pill p-new">5 minutes</span> <span class="pill p-new">7 minutes</span> <span class="pill p-new">10 minutes</span></p>
+  <p>It saves right away and applies within seconds.</p>
+  <div class="callout tip"><span>💡</span><span>Shorter means fresher data, but the app reads your log share more often.</span></div>
+</section>
+
+<section id="stop">
+  <h2>Stop and restart</h2>
+  <p>Click your name in the top bar, then <b>Quit Log Analyser</b>. (Mac/Linux: you can also press <code>Ctrl+C</code> in Terminal.) To start again, open the exe (or <code>run.sh</code>) as before. Your data is kept.</p>
+</section>
+
+<section id="faq">
+  <h2>Common questions</h2>
+  <details><summary>Nothing shows up. Why?</summary><p>Check, in order: the environment card for <b>cannot read log files</b>; the log path and prefix; that files end in <code>.log</code>; that lines match the format above; and that your logs contain ERROR or WARN lines. Then wait a few minutes.</p></details>
+  <details><summary>How fresh is the data?</summary><p>Every 10 minutes by default. You can choose 2, 5, 7 or 10 minutes on your account page. It is not real time.</p></details>
+  <details><summary>Does it change my logs?</summary><p>No. It only reads them.</p></details>
+  <details><summary>Where is my data stored?</summary><p>Next to the program, in <code>app.db</code> and the <code>environments/</code> folder. Keep them when you update.</p></details>
+  <details><summary>How do I update?</summary><p>Download the new zip and replace only the program file (<code>LogAnalyser.Api.exe</code>, or <code>LogAnalyser.Api</code> and <code>run.sh</code>). Leave <code>config.json</code>, <code>app.db</code> and <code>environments/</code> alone.</p></details>
+  <details><summary>Found a bug or have an idea?</summary><p>Tell us at <a href="https://github.com/Zarin85/Log-Analyser/issues">github.com/Zarin85/Log-Analyser/issues</a>.</p></details>
+</section>
+</div>
+
+<footer>Log Analyser · runs on your computer · your logs stay yours</footer>
+</body>
+</html>

@@ -63,13 +63,9 @@ foreach ($rid in $rids) {
     Remove-Item (Join-Path $stagingDir "config.json") -ErrorAction SilentlyContinue
 
     Copy-Item (Join-Path $packagingDir "README.txt") $stagingDir
-    if ($rid -eq "win-x64") {
-        # No run.bat needed - the exe itself opens no console window and opens the
-        # browser once it's listening (see Program.cs). stop.bat is still needed since
-        # there's no window left to close.
-        Copy-Item (Join-Path $packagingDir "stop.bat") $stagingDir
-    }
-    else {
+    # Windows needs no launcher - the exe itself opens no console window and opens the
+    # browser once it's listening (see Program.cs).
+    if ($rid -ne "win-x64") {
         Copy-Item (Join-Path $packagingDir "run.sh") $stagingDir
     }
 

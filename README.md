@@ -1,61 +1,139 @@
-# Log Analyser — packaging
+# 🔍 Log Analyser
 
-Builds ready-to-run, self-contained release packages of Log Analyser for Windows and
-macOS (Intel + Apple Silicon) and Linux, bundling the Angular web app into the API's
-static files so a package is a single folder with no separate install step for
-.NET, Node, or a web server.
+**Turn a flood of log lines into a handful of problems you can actually act on.**
 
-This repo (`Log-Analyser` on GitHub) is deliberately separate from the app's own source
-so it can be published and versioned on its own (release notes, packaging fixes)
-without churn in the application repos. It has no code of its own — it only
-orchestrates builds of the other two repos, which must be checked out as siblings, in
-folders named exactly as below (`scripts/build-package.ps1` and the CI workflow's
-`actions/checkout` `path:` values both key off these local folder names, not the repos'
-GitHub names):
+Log Analyser reads the log files you already have, groups the repeating errors together, and shows them in a simple web dashboard, so you can see what is new, what is getting worse and where in the code it happened.
 
-    <parent>/
-      LogAnalyser/           # .NET 8 API + collector (github.com/Zarin85/LogAnalyser)
-      LogAnalyser-WebApp/    # Angular SPA (github.com/Zarin85/LogAnalyser-WebApp)
-      Log-Analyser/          # this repo (github.com/Zarin85/Log-Analyser)
+| 😵 Without Log Analyser | ✅ With Log Analyser |
+|---|---|
+| 90 near-identical error lines, one per trace ID | **1** tracked problem, occurring 90 times |
+| No idea what is new and what is old noise | Automatic **New / Spiking / Known** status, plus Suppress and Resolve buttons |
+| Searching raw text for the file and line that threw | Class, method and file:line shown for you |
+| No idea which endpoints are slow | Average / min / max response time per endpoint |
 
-## Build a release
+- 🔒 **Self-hosted.** Your logs never leave your machine or network. No telemetry, no cloud.
+- 🔌 **No setup work.** It reads existing `.log` files. No agents, no code changes (your logs need to be in the [expected format](USER_GUIDE.md#1-before-you-start-your-logs)).
+- 📦 **Nothing else to install.** No .NET, Node, database or web server needed.
 
-    ./scripts/build-package.ps1 -Version 1.0.0
+---
 
-Requires the .NET 8 SDK and Node/npm on PATH, and both sibling repos present. Produces
-`release/LogAnalyser-{version}-{rid}.zip` for `win-x64`, `osx-x64`, `osx-arm64`, and
-`linux-x64` — each one a self-contained single-file publish of the API (which also runs
-the collector in-process, see `CollectorBackgroundService` in the backend repo), plus
-`README.txt` and, depending on platform, `stop.bat` or `run.sh` from this repo.
-`release/` is gitignored; it's a build output, not source.
+## 📥 Download
 
-A package is a single exe: on Windows it's published with `OutputType=WinExe` so it
-opens no console window, and `Program.cs` auto-creates `config.json` and opens the
-dashboard in the browser itself once it's listening - nothing else to launch or unblock.
+**➡️ [Get the latest release](https://github.com/Zarin85/Log-Analyser/releases/latest)**
 
-## Layout
+Download the zip for your computer from the **Assets** section of the release:
 
-    packaging/
-      run.sh      # launcher for macOS/Linux (still shows a terminal window there -
-                   # not a WinExe-equivalent, so run.sh remains the least-friction UX)
-      stop.bat    # win-x64 only - the exe has no console window to Ctrl+C
-      README.txt  # end-user instructions, copied into every package
-    scripts/
-      build-package.ps1  # does the actual building/publishing/zipping
+| Your computer | File |
+|---|---|
+| 🪟 Windows | `LogAnalyser-<version>-win-x64.zip` |
+| 🍎 Mac (Intel) | `LogAnalyser-<version>-osx-x64.zip` |
+| 🍎 Mac (M1/M2/M3/M4) | `LogAnalyser-<version>-osx-arm64.zip` |
+| 🐧 Linux | `LogAnalyser-<version>-linux-x64.zip` |
 
-## Updating an existing install
+---
 
-Replace `LogAnalyser.Api.exe` (Windows) or `LogAnalyser.Api` + `run.sh` (macOS/Linux)
-with the ones from the new release. Leave `config.json`, `app.db`, and `environments/`
-alone — that's where accounts, projects, and history live.
+## 🚀 Getting started
 
-## Publishing a GitHub release
+### 1. Start it
 
-Build first, then attach the resulting zips to a tagged release:
+**Windows**
+1. Extract the zip anywhere (for example your Desktop or `C:\Tools`).
+2. Double-click **`LogAnalyser.Api.exe`**.
+3. No window opens. After a few seconds your browser opens the dashboard by itself.
 
-    ./scripts/build-package.ps1 -Version 1.0.0
-    git tag v1.0.0 && git push origin v1.0.0
-    gh release create v1.0.0 release/LogAnalyser-1.0.0-*.zip --title v1.0.0 --generate-notes
+> If Windows SmartScreen says "Windows protected your PC", click **More info → Run anyway**. This happens because the app is not code-signed.
 
-The version passed to the build script should match the tag (without the `v`) so the
-zip filenames line up with the release they're attached to.
+**Mac / Linux**
+1. Extract the zip.
+2. Open Terminal in that folder and run:
+   ```
+   chmod +x run.sh
+   ./run.sh
+   ```
+3. Your browser opens the dashboard. Leave the Terminal window open while you use it.
+
+> On a Mac, if it is blocked as "from an unidentified developer", go to **System Settings → Privacy & Security** and choose **Open Anyway**.
+
+If the browser does not open, go to **http://localhost:5171**.
+
+### 2. Create your account
+Click **Sign up** and enter a name, email and password. The account is stored only on your computer.
+
+### 3. Create a project
+A project is one application or system. Give it a name and add one row for each **service log folder** (for example `business-clm-analytics`).
+
+### 4. Add an environment
+An environment is one place the logs live (for example Dev, Test or Prod). Give it a name and the **log path**: the root folder that contains your service folders. If the folders start with `dev-` or similar, put that in **Folder prefix**. Example: log path `\\server\AKS-Dev-Logs\business-clm`, prefix `dev-`, service `business-clm-analytics` means it reads `\\server\AKS-Dev-Logs\business-clm\dev-business-clm-analytics`, including sub-folders such as `ClmAnalyticsWebService`.
+
+That is it. Within a few minutes your problems appear on the dashboard. From then on it runs by itself and keeps checking for new log lines every 10 minutes. You can change this to **2, 5, 7 or 10 minutes**: click your name in the top bar and pick a value under **Check logs every**.
+
+---
+
+## 📊 Using the dashboard
+
+> 📘 Full walkthrough: **[USER_GUIDE.md](USER_GUIDE.md)**
+
+⚠️ Your logs must be `.log` files with lines like `2025-01-31 14:05:09,123 -- ERROR -- service-name -- message`. Other formats will not show up.
+
+
+- **Problems table:** every distinct error, with how many times it happened, which service it came from and its severity.
+- **Status:**
+  - 🆕 **New:** first time it has been seen
+  - 📈 **Spiking:** at least 5 occurrences in a check, and at least double its usual amount
+  - 📌 **Known:** been around a while, at a normal level
+  - 🔕 **Suppressed:** you chose to ignore it (stays ignored)
+  - ✅ **Resolved:** you marked it as fixed. If it happens again it goes back to **New**
+  
+  New, Spiking and Known are worked out automatically on every check. Suppressed and Resolved are set by you from the problem details page.
+- **Severity:** errors that appear in more than one service are marked **Critical** automatically.
+- **Problem details:** shows where it was thrown (class, method, file:line), the trace ID if there is one, and a chart of when it happened.
+- **Search and sort:** filter by message, service or class, and sort by severity, count or most recent.
+- **Performance:** average, minimum and maximum response time for each endpoint, taken from the same logs.
+
+---
+
+## 🛑 Stopping it
+
+- **Windows:** click your name in the top bar, then **Quit Log Analyser**.
+- **Mac / Linux:** press **Ctrl+C** in the Terminal window, or close it.
+
+## 🔄 Updating to a new version
+
+Download the new zip and replace only the program file:
+
+- **Windows:** `LogAnalyser.Api.exe`
+- **Mac / Linux:** `LogAnalyser.Api` and `run.sh`
+
+⚠️ **Do not delete or replace** `config.json`, `app.db` or the `environments/` folder. Your accounts, projects and history are stored there.
+
+---
+
+## 🔒 Privacy and security
+
+- Everything runs on your own computer or network. Nothing is sent anywhere.
+- Email addresses, JWTs and anything labelled `password`, `secret` or `token` in the logs are **hidden before they are shown** on the dashboard.
+- Each environment's data is stored in its own separate file, so data cannot mix between projects or environments.
+- Log Analyser only **reads** your log files. It never changes or deletes them.
+
+---
+
+## ❓ Troubleshooting
+
+| Problem | What to try |
+|---|---|
+| Browser does not open | Go to **http://localhost:5171** yourself |
+| Page does not load | Make sure the app is still running. On Windows, check Task Manager for `LogAnalyser.Api` |
+| "Cannot read log files" on an environment | The path is wrong or you do not have permission to it. Check that you can open that folder yourself |
+| Nothing shows up yet | Wait a few minutes. New environments are collected right after you add them |
+| Port 5171 is already in use | Close any other copy of Log Analyser that is running |
+| Forgot to unblock on Windows or Mac | See the notes under **Start it** above |
+
+---
+
+## 💬 Feedback and issues
+
+Found a bug or have an idea? Open an issue: https://github.com/Zarin85/Log-Analyser/issues
+
+## 🛠️ For developers
+
+How the packages are built and published is in [BUILDING.md](BUILDING.md).
