@@ -25,6 +25,24 @@ automatically every 10 minutes by default, and immediately the first time you
 add or change one. To change how often, click your name in the top bar and
 pick 2, 5, 7 or 10 minutes under "Check logs every".
 
+What you get
+------------
+Problems: repeating errors grouped, with New / Spiking / Known status.
+Logs: every log line searchable by text, level, service and time, with live
+tail. Lines are kept per level (Error/Warn 15 days, Info 3 days, Debug off
+by default). Performance: response time per endpoint. Dashboard buttons
+export the problems to CSV and a weekly digest to HTML.
+
+Other log formats and settings
+-------------------------------
+By default the logs must look like:
+    2025-01-31 14:05:09,123 -- ERROR -- service-name -- message
+For another format, close LogAnalyser and add settings to config.json next to
+the program (keep the "stateDatabase" line): "logFormat": "json" for JSON
+lines, "logPattern" and "timestampFormat" for another text format,
+"eventMinLevel", "warnErrorEventDays", "infoEventDays", "debugEventDays" and
+"retentionDays" for what the Logs page keeps. See the README for details.
+
 Updating to a new version
 --------------------------
 Replace LogAnalyser.Api.exe (Windows) or LogAnalyser.Api and run.sh

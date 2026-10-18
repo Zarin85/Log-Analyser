@@ -9,10 +9,12 @@ Log Analyser reads the log files you already have, groups the repeating errors t
 | 90 near-identical error lines, one per trace ID | **1** tracked problem, occurring 90 times |
 | No idea what is new and what is old noise | Automatic **New / Spiking / Known** status, plus Suppress and Resolve buttons |
 | Searching raw text for the file and line that threw | Class, method and file:line shown for you |
+| Opening log files one by one to see what happened around an error | A **Logs** page: search every line, filter by level, service and time, follow one request across services |
 | No idea which endpoints are slow | Average / min / max response time per endpoint |
+| Copy-pasting errors into a report | **Export CSV** and a **Weekly digest** in one click |
 
 - 🔒 **Self-hosted.** Your logs never leave your machine or network. No telemetry, no cloud.
-- 🔌 **No setup work.** It reads existing `.log` files. No agents, no code changes (your logs need to be in the [expected format](USER_GUIDE.md#1-before-you-start-your-logs)).
+- 🔌 **No setup work.** It reads existing `.log` files. No agents, no code changes. It understands the common `date -- LEVEL -- service -- message` lines out of the box, and can be pointed at other text formats or JSON logs (see [Other log formats](#-other-log-formats-and-settings)).
 - 📦 **Nothing else to install.** No .NET, Node, database or web server needed.
 
 ---
@@ -73,8 +75,7 @@ That is it. Within a few minutes your problems appear on the dashboard. From the
 
 > 📘 Full walkthrough: **[USER_GUIDE.md](USER_GUIDE.md)**
 
-⚠️ Your logs must be `.log` files with lines like `2025-01-31 14:05:09,123 -- ERROR -- service-name -- message`. Other formats will not show up.
-
+⚠️ Out of the box your logs must be `.log` files with lines like `2025-01-31 14:05:09,123 -- ERROR -- service-name -- message`. For other formats, see [Other log formats](#-other-log-formats-and-settings).
 
 - **Problems table:** every distinct error, with how many times it happened, which service it came from and its severity.
 - **Status:**
@@ -89,6 +90,67 @@ That is it. Within a few minutes your problems appear on the dashboard. From the
 - **Problem details:** shows where it was thrown (class, method, file:line), the trace ID if there is one, and a chart of when it happened.
 - **Search and sort:** filter by message, service or class, and sort by severity, count or most recent.
 - **Performance:** average, minimum and maximum response time for each endpoint, taken from the same logs.
+- **Export CSV / Weekly digest:** two buttons above the problems table. The CSV lists every problem. The digest is a one-page HTML summary of the last 7 days (counts, top problems, busiest services, slowest endpoints) you can save and share.
+
+---
+
+## 🧾 The Logs page
+
+Open **Logs** in the top bar to see every stored log line, not just errors.
+
+- **Search:** type any text, from a word to part of a stack trace. Matches are highlighted. Searches of 3 or more characters are the fastest.
+- **Filter:** by level (Error, Warn, Info, Debug), by service, and by time range (last 15 minutes up to all stored).
+- **Open a line:** click it for the full message and stack trace. From there you can show the **lines around it** (same service, or all services), **follow its trace** across services, jump to the **problem** it belongs to, or copy it.
+- **Go live:** streams new lines as they are collected.
+- **From a problem:** the problem page has **View logs** (all lines for that problem) and its trace ID links straight to that trace.
+
+### How long lines are kept
+
+| Level | Kept for (default) |
+|---|---|
+| Error and Warn | 15 days |
+| Info | 3 days |
+| Debug | 3 days, but Debug is **not stored** unless you turn it on |
+
+Problem summaries and trends are kept longer (90 days). If a search finds nothing, the line may be older than its retention. Everything is redacted before it is stored, and you can change the numbers below.
+
+---
+
+## 🧩 Other log formats and settings
+
+Everything below is optional. Settings go in **`config.json`**, which sits next to the program. Close Log Analyser, edit the file, and start it again. Keep the `"stateDatabase": "app.db"` line.
+
+```json
+{
+  "stateDatabase": "app.db",
+  "logFormat": "text",
+  "logPattern": null,
+  "timestampFormat": "yyyy-MM-dd HH:mm:ss,fff",
+  "eventMinLevel": "INFO",
+  "warnErrorEventDays": 15,
+  "infoEventDays": 3,
+  "debugEventDays": 3,
+  "retentionDays": 90
+}
+```
+
+| Setting | Use it to |
+|---|---|
+| `logFormat` | Set `"json"` if your logs are one JSON object per line (Serilog compact or JSON, log4net JSON layout). |
+| `logPattern` | Describe another text format with a regular expression. It needs the named groups `ts`, `level` and `msg`; `service` is optional. |
+| `timestampFormat` | Match the time format in your lines. If it is wrong, times show as year 0001. |
+| `eventMinLevel` | Lowest level shown on the Logs page. Set `"DEBUG"` to include debug lines (this uses more disk). |
+| `warnErrorEventDays`, `infoEventDays`, `debugEventDays` | How long the Logs page keeps lines per level. `0` keeps them forever. |
+| `retentionDays` | How long problem summaries and trends are kept. |
+| `maskRules` | A list of expressions for ids specific to your logs, so errors that differ only by that id count as one problem. |
+| `storeEvents` | Set `false` to turn the Logs page's line storage off. |
+
+Example for lines like `2025-01-31T14:05:09 [ERROR] OrderService: message`:
+
+```json
+"logPattern": "^(?<ts>\\d{4}-\\d{2}-\\d{2}T[\\d:]+) \\[(?<level>\\w+)\\] (?<service>\\w+): (?<msg>.*)$",
+"timestampFormat": "yyyy-MM-dd'T'HH:mm:ss"
+```
 
 ---
 
@@ -111,7 +173,8 @@ Download the new zip and replace only the program file:
 ## 🔒 Privacy and security
 
 - Everything runs on your own computer or network. Nothing is sent anywhere.
-- Email addresses, JWTs and anything labelled `password`, `secret` or `token` in the logs are **hidden before they are shown** on the dashboard.
+- Email addresses, JWTs, IP addresses, card numbers and anything labelled `password`, `secret`, `token` or `authorization` in the logs are **hidden before they are stored and shown**.
+- Passwords are stored with strong hashing, and after 5 wrong sign-ins for one email that email is locked for 15 minutes.
 - Each environment's data is stored in its own separate file, so data cannot mix between projects or environments.
 - Log Analyser only **reads** your log files. It never changes or deletes them.
 
@@ -125,6 +188,10 @@ Download the new zip and replace only the program file:
 | Page does not load | Make sure the app is still running. On Windows, check Task Manager for `LogAnalyser.Api` |
 | "Cannot read log files" on an environment | The path is wrong or you do not have permission to it. Check that you can open that folder yourself |
 | Nothing shows up yet | Wait a few minutes. New environments are collected right after you add them |
+| Logs page is empty or a line is missing | It may be older than its retention (see the table above), or it is Debug and Debug is off |
+| No response times on Performance | Your logs need ASP.NET `Request finished ... - 200 - ... 12.3ms` lines |
+| Times show as year 0001 | `timestampFormat` does not match your lines, see [Other log formats](#-other-log-formats-and-settings) |
+| "Too many failed sign-in attempts" | Wait 15 minutes, or sign in with the right password |
 | Port 5171 is already in use | Close any other copy of Log Analyser that is running |
 | Forgot to unblock on Windows or Mac | See the notes under **Start it** above |
 

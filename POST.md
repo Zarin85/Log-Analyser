@@ -1,37 +1,46 @@
-🔍 **Log Analyser: stop reading logs line by line**
+🔍 Log Analyser: Stop Reading Logs Line by Line!
 
-Hi team 👋
+Hello General,
 
-I built a small tool called **Log Analyser** that turns a flood of log lines into a short list of problems you can act on.
+Ever opened a log file and scrolled through hundreds of near-identical errors, just to find out what actually broke? I built a tool so we never have to do that again. 🚀
 
-**What is it?**
-It reads our `.log` files and groups repeating errors together.
-Instead of 90 near-identical error lines, you see **1 problem that happened 90 times**.
+Log Analyser reads our .log files and groups repeating errors together. Instead of 90 error lines, you see 1 problem that happened 90 times.
 
-**What you get**
-✅ Errors grouped automatically (no more scrolling through duplicates)
-✅ An automatic status for each one (**New / Spiking / Known**), so you can tell what just broke, plus buttons to **Suppress** noise or mark a problem **Resolved**
-✅ The class, method and file:line where it was thrown
-✅ Average / min / max response time per endpoint, from the same logs
-✅ Errors that hit more than one service are flagged **Critical**
+Point it at a service like this:
+\\server\AKS-Dev-Logs\business-clm\dev-business-clm-analytics\ClmAnalyticsWebService
+and within minutes you get a clean list of problems.
 
-**Safe to use**
-🔒 It runs on your own machine. Logs never leave your computer, and nothing is sent to the cloud.
-🔒 Emails, tokens and passwords in the logs are hidden before they are shown.
-🔒 It only reads log files. It never changes them.
+✨ What you get
+• Errors grouped automatically, no more scrolling through duplicates
+• A status on every problem: New, Spiking or Known, so you instantly see what just broke
+• Suppress harmless noise, or mark a problem Resolved once it's fixed
+• Exactly where it happened: class, method, file and line
+• Errors that hit more than one service are flagged Critical
+• Average, fastest and slowest response time for every endpoint
+• You pick how fresh the data is: it checks every 2, 5, 7 or 10 minutes
 
-**How to use it (about 2 minutes)**
-1️⃣ Download the zip for your computer (Windows / Mac / Linux) from the release page below
-2️⃣ Extract it, then double-click `LogAnalyser.Api.exe` (Mac/Linux: run `./run.sh`)
-3️⃣ Your browser opens by itself. If not, go to http://localhost:5171
-4️⃣ Sign up (the account stays on your computer), create a **project**, add the service log folders, then add an **environment** with the path to the log root
-5️⃣ Wait a few minutes and your problems appear. After that it keeps updating by itself.
+🔒 Safe to use
+• Runs on your own computer, nothing goes to the cloud
+• It only reads your logs, it never changes them
+• Emails, tokens and passwords are hidden before anything is shown
+
+⚡ Get started in 2 minutes
+1. Download the zip for Windows / macOS / Linux and extract it
+2. Double-click LogAnalyser.Api.exe (Mac/Linux: ./run.sh)
+3. Your browser opens by itself. Sign up (the account stays on your computer)
+4. Create a project, add an environment with your log path, and you're done!
 
 Nothing else to install. No .NET, no database, no setup.
-📝 Logs need the format `2025-01-31 14:05:09,123 -- ERROR -- service -- message` (and `.log` files). The full guide explains it.
-⚠️ Windows may show a "protected your PC" warning because the app is not code-signed. Click **More info → Run anyway**.
 
-**📥 Download:** https://github.com/Zarin85/Log-Analyser/releases/latest
-**📖 Full guide:** https://github.com/Zarin85/Log-Analyser/blob/main/USER_GUIDE.md
+📌 Before you start
+• Connect to Pritunl first. The log share is only reachable over the VPN, and without it the app will say "cannot read log files".
+• Your logs need to be .log files with lines like: 2025-01-31 14:05:09,123 -- ERROR -- service -- message
+• Windows may show a "protected your PC" warning because the app isn't code-signed. Click More info, then Run anyway.
 
-Try it on your own logs and tell me what you think. Bugs and ideas are very welcome. 🙏
+📥 Download the latest release for Windows / macOS / Linux:
+https://github.com/Zarin85/Log-Analyser/releases/latest
+
+📖 Step-by-step user guide:
+https://github.com/Zarin85/Log-Analyser/blob/main/USER_GUIDE.md
+
+Try it on your own logs and let me know what you think. Bugs, ideas and feedback are all very welcome! 🙏
