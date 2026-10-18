@@ -58,6 +58,7 @@ th{font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--mute
 .p-res{background:rgba(22,163,74,.15);color:var(--ok)}
 .p-crit{background:var(--bad);color:#fff}.p-high{background:var(--warn);color:#fff}
 .p-med{background:#eab308;color:#222}.p-low{background:var(--ok);color:#fff}
+pre{margin:10px 0 0;overflow-x:auto;white-space:pre-wrap;word-break:break-word}pre code{background:none;padding:0}
 details{border:1px solid var(--line);border-radius:12px;padding:12px 16px;margin:10px 0}
 summary{cursor:pointer;font-weight:600}
 details p{margin:8px 0 0;color:var(--muted)}
@@ -76,8 +77,8 @@ footer{text-align:center;color:var(--muted);font-size:14px;padding:8px 16px 40px
 <div class="wrap">
 <nav>
   <a href="#what">What it is</a><a href="#start">Get started</a><a href="#setup">Set up logs</a>
-  <a href="#dashboard">Dashboard</a><a href="#investigate">Investigate</a><a href="#more">More pages</a>
-  <a href="#refresh">Refresh rate</a><a href="#stop">Stop</a><a href="#faq">FAQ</a>
+  <a href="#dashboard">Dashboard</a><a href="#investigate">Investigate</a><a href="#logs">Logs</a><a href="#more">More pages</a>
+  <a href="#settings">Settings</a><a href="#refresh">Refresh rate</a><a href="#stop">Stop</a><a href="#faq">FAQ</a>
 </nav>
 
 <section id="what">
@@ -87,7 +88,9 @@ footer{text-align:center;color:var(--muted);font-size:14px;padding:8px 16px 40px
     <div class="feature"><span class="i">🧩</span><b>Errors grouped</b>No more scrolling through duplicates.</div>
     <div class="feature"><span class="i">🚦</span><b>Clear status</b>See what is New, Spiking or Known.</div>
     <div class="feature"><span class="i">📍</span><b>Where it happened</b>Class, method, file and line.</div>
+    <div class="feature"><span class="i">🧾</span><b>Searchable logs</b>Every line, filtered by level, service and time.</div>
     <div class="feature"><span class="i">⏱️</span><b>Response times</b>Average, fastest and slowest per endpoint.</div>
+    <div class="feature"><span class="i">📤</span><b>Share it</b>Export a CSV or a weekly digest.</div>
   </div>
   <div class="callout safe"><span>🔒</span><span>It runs on <b>your own computer</b>. Logs never leave it, nothing goes to the cloud, and it only <b>reads</b> your logs. It never changes them.</span></div>
 </section>
@@ -113,6 +116,7 @@ footer{text-align:center;color:var(--muted);font-size:14px;padding:8px 16px 40px
     <li>Each line starts like <code>2025-01-31 14:05:09,123 -- ERROR -- service-name -- message</code></li>
     <li>Each service has its own folder. Sub-folders are fine.</li>
   </ul>
+  <p>Your logs look different (JSON lines, another timestamp, another layout)? See <a href="#settings">Other log formats and settings</a>.</p>
 
   <h3>1. Create a project</h3>
   <p>A <b>project</b> is one application. Click <b>New project</b>, name it, and add one row per <b>service</b>: the folder name of its logs, <b>without</b> a prefix like <code>dev-</code>.</p>
@@ -149,6 +153,7 @@ footer{text-align:center;color:var(--muted);font-size:14px;padding:8px 16px 40px
     <li><b>Search</b> by message, service or class, and <b>sort</b> by any column.</li>
     <li>Tick <b>Show all</b> to include everything. Otherwise you see only New and Spiking.</li>
     <li>Click a row to see its details.</li>
+    <li><b>Export CSV</b> saves every problem to a spreadsheet file. <b>Weekly digest</b> saves a one-page summary of the last 7 days (counts, top problems, busiest services, slowest endpoints) to send to your team.</li>
   </ul>
 
   <h3>Statuses</h3>
@@ -177,11 +182,38 @@ footer{text-align:center;color:var(--muted);font-size:14px;padding:8px 16px 40px
   <div class="grid">
     <div class="feature"><span class="i">💬</span><b>What happened</b>An example of the error message.</div>
     <div class="feature"><span class="i">📍</span><b>Where</b>Service, class, method, file and line.</div>
-    <div class="feature"><span class="i">🔗</span><b>Trace ID</b>Find the same request in your other tools.</div>
+    <div class="feature"><span class="i">🔗</span><b>Trace ID</b>Click it to see every log line of that request.</div>
     <div class="feature"><span class="i">📈</span><b>History</b>When it happened, with full stack traces.</div>
   </div>
-  <p>Then decide: <b>Suppress</b> it if it is harmless noise, or <b>Resolve</b> it once you have fixed it.</p>
-  <div class="callout safe"><span>🔒</span><span>Emails, tokens and passwords are replaced with <code>[REDACTED]</code> before they are shown.</span></div>
+  <p>Then decide: <b>Suppress</b> it if it is harmless noise, or <b>Resolve</b> it once you have fixed it. <b>View logs</b> shows all stored log lines for the problem, and <b>Copy link</b> gives you a link to send to a colleague.</p>
+  <div class="callout safe"><span>🔒</span><span>Emails, tokens, passwords, IP addresses and card numbers are replaced with <code>[REDACTED]</code> before they are stored or shown.</span></div>
+</section>
+
+<section id="logs">
+  <h2>Search your logs</h2>
+  <p class="lead">Open <b>Logs</b> in the top bar to see every stored log line, not only errors.</p>
+  <div class="grid">
+    <div class="feature"><span class="i">🔍</span><b>Search</b>Any text, from a word to part of a stack trace. Matches are highlighted.</div>
+    <div class="feature"><span class="i">🎚️</span><b>Filter</b>By level, by service, and by time range.</div>
+    <div class="feature"><span class="i">📖</span><b>Open a line</b>Full message and stack trace, plus the lines around it.</div>
+    <div class="feature"><span class="i">📡</span><b>Go live</b>Stream new lines as they are collected.</div>
+  </div>
+  <h3>From an open line</h3>
+  <ul>
+    <li><b>Lines around this</b> shows what else that service logged just before and after.</li>
+    <li><b>All services</b> shows every service around that moment.</li>
+    <li><b>Follow trace</b> shows one request across services.</li>
+    <li><b>View problem</b> jumps to the problem it belongs to, and <b>Copy</b> copies the line.</li>
+  </ul>
+  <h3>How long lines are kept</h3>
+  <table>
+    <tr><th>Level</th><th>Kept for (default)</th></tr>
+    <tr><td>Error and Warn</td><td>15 days</td></tr>
+    <tr><td>Info</td><td>3 days</td></tr>
+    <tr><td>Debug</td><td>3 days, but Debug is <b>not stored</b> unless you turn it on</td></tr>
+  </table>
+  <p>Problem summaries and trends are kept longer (90 days). If a search finds nothing, the line may be older than its retention. You can change all of these in <a href="#settings">Settings</a>.</p>
+  <div class="callout tip"><span>💡</span><span>Searches of 3 or more characters are the fastest. The time range is measured from the newest stored line, not from the clock, so a quiet system still shows its last hour.</span></div>
 </section>
 
 <section id="more">
@@ -191,6 +223,27 @@ footer{text-align:center;color:var(--muted);font-size:14px;padding:8px 16px 40px
     <div class="feature"><span class="i">⚡</span><b>Performance</b>Average, fastest and slowest response for each endpoint.</div>
     <div class="feature"><span class="i">🧱</span><b>Service view</b>Click any service name for its 30-day trend and problems.</div>
     <div class="feature"><span class="i">👤</span><b>Account</b>Click your name in the top bar to sign out or quit.</div>
+  </div>
+</section>
+
+<section id="settings">
+  <h2>Other log formats and settings</h2>
+  <p class="lead">Everything here is optional. Settings go in <code>config.json</code>, next to the program. Close Log Analyser, edit the file, and start it again. Keep the <code>"stateDatabase": "app.db"</code> line.</p>
+  <table>
+    <tr><th>Setting</th><th>Use it to</th></tr>
+    <tr><td><code>logFormat</code></td><td>Set <code>"json"</code> if your logs are one JSON object per line (Serilog compact or JSON, log4net JSON layout).</td></tr>
+    <tr><td><code>logPattern</code></td><td>Describe another text format with a regular expression. It needs the named groups <code>ts</code>, <code>level</code> and <code>msg</code>; <code>service</code> is optional.</td></tr>
+    <tr><td><code>timestampFormat</code></td><td>Match the time format in your lines. If it is wrong, times show as year 0001.</td></tr>
+    <tr><td><code>eventMinLevel</code></td><td>Lowest level shown on the Logs page. Set <code>"DEBUG"</code> to include debug lines (uses more disk).</td></tr>
+    <tr><td><code>warnErrorEventDays</code>, <code>infoEventDays</code>, <code>debugEventDays</code></td><td>How long the Logs page keeps lines per level. <code>0</code> keeps them forever.</td></tr>
+    <tr><td><code>retentionDays</code></td><td>How long problem summaries and trends are kept.</td></tr>
+    <tr><td><code>maskRules</code></td><td>A list of expressions for ids specific to your logs, so errors that differ only by that id count as one problem.</td></tr>
+    <tr><td><code>storeEvents</code></td><td>Set <code>false</code> to stop storing log lines for the Logs page.</td></tr>
+  </table>
+  <div class="example">
+    <b>Example.</b> For lines like <code>2025-01-31T14:05:09 [ERROR] OrderService: message</code>, add:
+    <pre><code>"logPattern": "^(?&lt;ts&gt;\\d{4}-\\d{2}-\\d{2}T[\\d:]+) \\[(?&lt;level&gt;\\w+)\\] (?&lt;service&gt;\\w+): (?&lt;msg&gt;.*)$",
+"timestampFormat": "yyyy-MM-dd'T'HH:mm:ss"</code></pre>
   </div>
 </section>
 
@@ -210,7 +263,10 @@ footer{text-align:center;color:var(--muted);font-size:14px;padding:8px 16px 40px
 
 <section id="faq">
   <h2>Common questions</h2>
-  <details><summary>Nothing shows up. Why?</summary><p>Check, in order: the environment card for <b>cannot read log files</b>; the log path and prefix; that files end in <code>.log</code>; that lines match the format above; and that your logs contain ERROR or WARN lines. Then wait a few minutes.</p></details>
+  <details><summary>Nothing shows up. Why?</summary><p>Check, in order: the environment card for <b>cannot read log files</b>; the log path and prefix; that files end in <code>.log</code>; that lines match the format above (or your own format is set in <code>config.json</code>); and that your logs contain ERROR or WARN lines. Then wait a few minutes.</p></details>
+  <details><summary>The Logs page is empty, or a line I expect is missing.</summary><p>It may be older than its retention (Error and Warn 15 days, Info 3 days), or it is a Debug line and Debug is not stored by default.</p></details>
+  <details><summary>Performance is empty.</summary><p>It needs ASP.NET <code>Request finished ... - 200 - ... 12.3ms</code> lines in your logs.</p></details>
+  <details><summary>"Too many failed sign-in attempts".</summary><p>After 5 wrong passwords for one email, that email is locked for 15 minutes. Wait, then try again.</p></details>
   <details><summary>How fresh is the data?</summary><p>Every 10 minutes by default. You can choose 2, 5, 7 or 10 minutes on your account page. It is not real time.</p></details>
   <details><summary>Does it change my logs?</summary><p>No. It only reads them.</p></details>
   <details><summary>Where is my data stored?</summary><p>Next to the program, in <code>app.db</code> and the <code>environments/</code> folder. Keep them when you update.</p></details>

@@ -3,7 +3,7 @@
 **Log Analyser turns thousands of log lines into a short list of problems you can act on.**
 It reads your `.log` files, groups repeating errors together, and shows them on a simple web page, along with how fast each endpoint responds.
 
-Instead of 90 near-identical error lines, you see **1 problem that happened 90 times**.
+Instead of 90 near-identical error lines, you see **1 problem that happened 90 times**. And when you need the raw lines, the **Logs** page lets you search every one of them.
 
 > 🔒 It runs on your own computer. Your logs never leave it, and it only reads them. It never changes them.
 
@@ -30,6 +30,8 @@ You do this once. You tell the app **what** to watch (a project) and **where** t
 - Files end in **`.log`**.
 - Each line starts like this: `2025-01-31 14:05:09,123 -- ERROR -- service-name -- message`
 - Each service has its own folder. Sub-folders are fine.
+
+Your logs look different (JSON lines, another timestamp, another layout)? See [Other log formats and settings](#-other-log-formats-and-settings).
 
 ### 1. Create a project
 
@@ -72,6 +74,8 @@ Click **Open** on an environment. At the top you see the key numbers: active pro
 
 **In the table you can:** search by message, service or class; sort by any column; tick **Show all** to include everything (otherwise you see only New and Spiking); and click a row for details.
 
+**Share it:** **Export CSV** saves every problem to a spreadsheet file. **Weekly digest** saves a one-page summary of the last 7 days (counts, top problems, busiest services, slowest endpoints) that you can send to your team.
+
 ### What the statuses mean
 
 | Status | Meaning | Set by |
@@ -99,12 +103,41 @@ Click a problem to see:
 
 - **What happened:** an example of the error message.
 - **Where:** the service, class, method, and file and line number.
-- **Trace ID:** to look up the same request in your other tools.
+- **Trace ID:** click it to see every log line of that request, across services.
 - **History:** a chart of when it happened, and recent occurrences with the full stack trace.
 
-Then decide: **Suppress** it if it is harmless noise, or **Resolve** it once you have fixed it.
+Then decide: **Suppress** it if it is harmless noise, or **Resolve** it once you have fixed it. **View logs** shows all the stored log lines for this problem, and **Copy link** gives you a link to send to a colleague.
 
-> 🔒 Emails, tokens and passwords are replaced with `[REDACTED]` before they are shown.
+> 🔒 Emails, tokens, passwords, IP addresses and card numbers are replaced with `[REDACTED]` before they are stored or shown.
+
+---
+
+## 🧾 Search your logs
+
+Open **Logs** in the top bar to see every stored log line, not only errors.
+
+- **Search:** type any text, from a word to part of a stack trace. Matches are highlighted. Searches of 3 or more characters are the fastest.
+- **Filter:** by level (Error, Warn, Info, Debug), by service, and by time range (from the last 15 minutes up to everything stored).
+- **Open a line:** click it to see the full message and stack trace. From there you can:
+  - **Lines around this** to see what else that service logged just before and after,
+  - **All services** to see every service around that moment,
+  - **Follow trace** to see one request across services,
+  - **View problem** to jump to the problem it belongs to,
+  - **Copy** the line.
+- **Go live:** streams new lines as they are collected.
+- **Load older lines** at the bottom shows more.
+
+### How long lines are kept
+
+| Level | Kept for (default) |
+|---|---|
+| Error and Warn | 15 days |
+| Info | 3 days |
+| Debug | 3 days, but Debug is **not stored** unless you turn it on |
+
+Problem summaries and trends are kept longer (90 days). If a search finds nothing, the line may be older than its retention. You can change all of these (see below).
+
+> 💡 The time range is measured from the newest stored line, not from the clock, so a quiet system still shows its last hour.
 
 ---
 
@@ -123,6 +156,44 @@ By default the app looks for new log lines every **10 minutes**. To change it, c
 
 ---
 
+## 🧩 Other log formats and settings
+
+Everything here is optional. Settings go in **`config.json`**, next to the program. Close Log Analyser, edit the file, and start it again. Keep the `"stateDatabase": "app.db"` line.
+
+```json
+{
+  "stateDatabase": "app.db",
+  "logFormat": "text",
+  "logPattern": null,
+  "timestampFormat": "yyyy-MM-dd HH:mm:ss,fff",
+  "eventMinLevel": "INFO",
+  "warnErrorEventDays": 15,
+  "infoEventDays": 3,
+  "debugEventDays": 3,
+  "retentionDays": 90
+}
+```
+
+| Setting | Use it to |
+|---|---|
+| `logFormat` | Set `"json"` if your logs are one JSON object per line (Serilog compact or JSON, log4net JSON layout). |
+| `logPattern` | Describe another text format with a regular expression. It needs the named groups `ts`, `level` and `msg`; `service` is optional. |
+| `timestampFormat` | Match the time format in your lines. If it is wrong, times show as year 0001. |
+| `eventMinLevel` | Lowest level shown on the Logs page. Set `"DEBUG"` to include debug lines (this uses more disk). |
+| `warnErrorEventDays`, `infoEventDays`, `debugEventDays` | How long the Logs page keeps lines per level. `0` keeps them forever. |
+| `retentionDays` | How long problem summaries and trends are kept. |
+| `maskRules` | A list of expressions for ids specific to your logs, so errors that differ only by that id count as one problem. |
+| `storeEvents` | Set `false` to stop storing log lines for the Logs page. |
+
+Example for lines like `2025-01-31T14:05:09 [ERROR] OrderService: message`:
+
+```json
+"logPattern": "^(?<ts>\\d{4}-\\d{2}-\\d{2}T[\\d:]+) \\[(?<level>\\w+)\\] (?<service>\\w+): (?<msg>.*)$",
+"timestampFormat": "yyyy-MM-dd'T'HH:mm:ss"
+```
+
+---
+
 ## 🛑 Stop and restart
 
 Click your name in the top bar, then **Quit Log Analyser**. (Mac/Linux: you can also press Ctrl+C in the Terminal.) To start again, open the exe (or `run.sh`) as before. Your data is kept.
@@ -132,7 +203,16 @@ Click your name in the top bar, then **Quit Log Analyser**. (Mac/Linux: you can 
 ## ❓ Common questions
 
 **Nothing shows up.**
-Check, in order: the environment card for **cannot read log files**; the log path and prefix; that files end in `.log`; that lines match the format above; and that your logs contain ERROR or WARN lines. Then wait a few minutes.
+Check, in order: the environment card for **cannot read log files**; the log path and prefix; that files end in `.log`; that lines match the format above (or your own format is set in `config.json`); and that your logs contain ERROR or WARN lines. Then wait a few minutes.
+
+**The Logs page is empty, or a line I expect is missing.**
+It may be older than its retention (see the table above), or it is a Debug line and Debug is not stored by default.
+
+**Performance is empty.**
+It needs ASP.NET `Request finished ... - 200 - ... 12.3ms` lines in your logs.
+
+**"Too many failed sign-in attempts".**
+After 5 wrong passwords for one email, that email is locked for 15 minutes. Wait, then try again.
 
 **How fresh is the data?**
 Every 10 minutes by default. You can choose 2, 5, 7 or 10 minutes on your account page. It is not real time.
