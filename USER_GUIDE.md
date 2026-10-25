@@ -58,7 +58,7 @@ Enter:
 
 The app joins them as *log path + prefix + service*, then reads every `.log` file below it, including sub-folders like `ClmAnalyticsWebService`. You do not type the sub-folder.
 
-After saving, wait a few minutes. The app checks again by itself every **10 minutes** by default. You can change this to 2, 5, 7 or 10 minutes (see [How often it checks](#-how-often-it-checks)).
+After saving, wait a few minutes. The app checks again by itself every **10 minutes** by default. You can change this to 10 seconds, 15 seconds, 7 minutes or 10 minutes (see [How often it checks](#-how-often-it-checks)).
 
 | Label on the environment card | Meaning |
 |---|---|
@@ -146,13 +146,31 @@ Problem summaries and trends are kept longer (90 days). If a search finds nothin
 - **Timeline:** every error in time order. Pick a date range and service. Great for "what went wrong around 2pm yesterday?"
 - **Performance:** average, fastest and slowest response time for each endpoint.
 - **Service view:** click any service name to see its 30-day trend and all its problems.
-- **Account:** click your name in the top bar to see your details, sign out, or **Quit Log Analyser**.
+- **AI analysis** and **Paste logs:** optional plain-language explanations of your problems, and a place to paste any log for a quick breakdown (see [AI analysis](#-ai-analysis-optional)).
+- **Account:** click your name in the top bar to see your details, set how often logs are checked, set up AI analysis, sign out, or **Quit Log Analyser**.
 
 ---
 
 ## ⏱️ How often it checks
 
-By default the app looks for new log lines every **10 minutes**. To change it, click your name in the top bar and use **Check logs every** to pick **2, 5, 7 or 10 minutes**. It saves right away and applies within seconds. Shorter means fresher data, but the app reads your log share more often.
+By default the app looks for new log lines every **10 minutes**. To change it, click your name in the top bar and use **Check logs every** to pick **10 seconds, 15 seconds, 7 minutes or 10 minutes**. It saves right away and applies within seconds. Shorter means fresher data, but the app reads your log share more often.
+
+---
+
+## 🤖 AI analysis (optional)
+
+Log Analyser can explain your problems in plain language using a **free AI model that runs on your own computer** through [Ollama](https://ollama.com). Nothing goes to the cloud, and it stays off until you turn it on.
+
+1. Install Ollama from **ollama.com/download**.
+2. Open a terminal and run `ollama pull qwen2.5:7b` (about 5 GB, one time).
+3. In Log Analyser click your name in the top bar, find **AI analysis (Ollama)**, tick **Turn on AI analysis**, click **Test connection**, then **Save**.
+
+Two extra pages then appear inside an environment:
+
+- **AI analysis:** explains each new or spiking error with a category (Database, Timeout/Network, Authentication and so on), possible causes marked as hypotheses, and steps to investigate. Filter by service or category, and use **Download report** or **Copy report** for a ready-to-share Markdown summary.
+- **Paste logs:** paste any log text and get a summary, the error messages found, possible causes, investigation steps and what information is missing. Nothing is saved, and emails, IP addresses, card numbers and tokens are masked before analysis.
+
+> 💡 Answers are AI suggestions, so treat them as a starting point. A normal PC analyses a few problems per minute. If Ollama is not running, these pages say so and the rest of the app works as usual.
 
 ---
 
@@ -215,7 +233,7 @@ It needs ASP.NET `Request finished ... - 200 - ... 12.3ms` lines in your logs.
 After 5 wrong passwords for one email, that email is locked for 15 minutes. Wait, then try again.
 
 **How fresh is the data?**
-Every 10 minutes by default. You can choose 2, 5, 7 or 10 minutes on your account page. It is not real time.
+Every 10 minutes by default. You can choose 10 seconds, 15 seconds, 7 minutes or 10 minutes on your account page. It is not real time.
 
 **Does it change my logs?**
 No. It only reads them.

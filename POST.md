@@ -17,7 +17,8 @@ and within minutes you get a clean list of problems.
 • Exactly where it happened: class, method, file and line
 • Errors that hit more than one service are flagged Critical
 • Average, fastest and slowest response time for every endpoint
-• You pick how fresh the data is: it checks every 2, 5, 7 or 10 minutes
+• You pick how fresh the data is: every 10 or 15 seconds, up to every 10 minutes
+• Optional AI analysis: explains each problem and breaks down any log you paste, using a free model on your own PC
 
 🔒 Safe to use
 • Runs on your own computer, nothing goes to the cloud

@@ -23,7 +23,8 @@ whose logs you want analysed), then add an environment with the log path
 you have access to. LogAnalyser checks for new environments/log paths
 automatically every 10 minutes by default, and immediately the first time you
 add or change one. To change how often, click your name in the top bar and
-pick 2, 5, 7 or 10 minutes under "Check logs every".
+pick 10 seconds, 15 seconds, 7 minutes or 10 minutes under
+"Check logs every".
 
 What you get
 ------------
@@ -32,6 +33,10 @@ Logs: every log line searchable by text, level, service and time, with live
 tail. Lines are kept per level (Error/Warn 15 days, Info 3 days, Debug off
 by default). Performance: response time per endpoint. Dashboard buttons
 export the problems to CSV and a weekly digest to HTML.
+AI analysis (optional): install Ollama (ollama.com/download), run
+"ollama pull qwen2.5:7b", then click your name in the top bar, tick "Turn on
+AI analysis" and Save. It runs on your own PC, nothing goes to the cloud, and
+adds an AI analysis page and a Paste logs page.
 
 Other log formats and settings
 -------------------------------

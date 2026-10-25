@@ -78,7 +78,7 @@ footer{text-align:center;color:var(--muted);font-size:14px;padding:8px 16px 40px
 <nav>
   <a href="#what">What it is</a><a href="#start">Get started</a><a href="#setup">Set up logs</a>
   <a href="#dashboard">Dashboard</a><a href="#investigate">Investigate</a><a href="#logs">Logs</a><a href="#more">More pages</a>
-  <a href="#settings">Settings</a><a href="#refresh">Refresh rate</a><a href="#stop">Stop</a><a href="#faq">FAQ</a>
+  <a href="#settings">Settings</a><a href="#refresh">Refresh rate</a><a href="#ai">AI analysis</a><a href="#stop">Stop</a><a href="#faq">FAQ</a>
 </nav>
 
 <section id="what">
@@ -137,7 +137,7 @@ footer{text-align:center;color:var(--muted);font-size:14px;padding:8px 16px 40px
     The app joins <i>log path + prefix + service</i>, then reads every <code>.log</code> file below it, including sub-folders like <code>ClmAnalyticsWebService</code>. You do not type the sub-folder.
   </div>
 
-  <p>After saving, wait a few minutes. The app re-checks by itself every <b>10 minutes</b> by default. You can change this to 2, 5, 7 or 10 minutes (see <a href="#refresh">How often it checks</a>).</p>
+  <p>After saving, wait a few minutes. The app re-checks by itself every <b>10 minutes</b> by default. You can change this to 10 seconds, 15 seconds, 7 minutes or 10 minutes (see <a href="#refresh">How often it checks</a>).</p>
   <table>
     <tr><th>Label on the environment card</th><th>Meaning</th></tr>
     <tr><td><i>(none)</i></td><td>Working normally</td></tr>
@@ -222,8 +222,24 @@ footer{text-align:center;color:var(--muted);font-size:14px;padding:8px 16px 40px
     <div class="feature"><span class="i">🕒</span><b>Timeline</b>Every error in time order. Great for "what went wrong at 2pm yesterday?"</div>
     <div class="feature"><span class="i">⚡</span><b>Performance</b>Average, fastest and slowest response for each endpoint.</div>
     <div class="feature"><span class="i">🧱</span><b>Service view</b>Click any service name for its 30-day trend and problems.</div>
-    <div class="feature"><span class="i">👤</span><b>Account</b>Click your name in the top bar to sign out or quit.</div>
+    <div class="feature"><span class="i">🤖</span><b>AI analysis</b>Plain-language explanations of your problems, by service and category (optional).</div>
+    <div class="feature"><span class="i">📋</span><b>Paste logs</b>Paste any log text and get causes and next steps (optional).</div>
+    <div class="feature"><span class="i">👤</span><b>Account</b>Click your name in the top bar to set the check rate, set up AI analysis, sign out or quit.</div>
   </div>
+</section>
+
+<section id="ai">
+  <h2>AI analysis (optional)</h2>
+  <p class="lead">Log Analyser can explain your problems in plain language using a free AI model that runs on your own computer through Ollama. Nothing goes to the cloud, and it stays off until you turn it on.</p>
+  <ol>
+    <li>Install Ollama from <b>ollama.com/download</b>.</li>
+    <li>Open a terminal and run <code>ollama pull qwen2.5:7b</code> (about 5 GB, one time).</li>
+    <li>In Log Analyser click your name in the top bar, find <b>AI analysis (Ollama)</b>, tick <b>Turn on AI analysis</b>, click <b>Test connection</b>, then <b>Save</b>.</li>
+  </ol>
+  <p>Two extra pages then appear inside an environment:</p>
+  <p><b>AI analysis</b> explains each new or spiking error with a category (Database, Timeout/Network, Authentication and so on), possible causes marked as hypotheses, and steps to investigate. Filter by service or category, and use <b>Download report</b> or <b>Copy report</b> for a ready-to-share Markdown summary.</p>
+  <p><b>Paste logs</b> lets you paste any log text and get a summary, the error messages found, possible causes, investigation steps and what information is missing. Nothing is saved, and emails, IP addresses, card numbers and tokens are masked before analysis.</p>
+  <div class="callout tip"><span>💡</span><span>Answers are AI suggestions, so treat them as a starting point. A normal PC analyses a few problems per minute. If Ollama is not running, these pages say so and the rest of the app works as usual.</span></div>
 </section>
 
 <section id="settings">
@@ -251,7 +267,7 @@ footer{text-align:center;color:var(--muted);font-size:14px;padding:8px 16px 40px
   <h2>How often it checks</h2>
   <p class="lead">By default the app looks for new log lines every <b>10 minutes</b>. You choose how fresh you want your data.</p>
   <p>Click your name in the top bar and use <b>Check logs every</b> to pick:</p>
-  <p><span class="pill p-new">2 minutes</span> <span class="pill p-new">5 minutes</span> <span class="pill p-new">7 minutes</span> <span class="pill p-new">10 minutes</span></p>
+  <p><span class="pill p-new">10 seconds</span> <span class="pill p-new">15 seconds</span> <span class="pill p-new">7 minutes</span> <span class="pill p-new">10 minutes</span></p>
   <p>It saves right away and applies within seconds.</p>
   <div class="callout tip"><span>💡</span><span>Shorter means fresher data, but the app reads your log share more often.</span></div>
 </section>
@@ -267,7 +283,7 @@ footer{text-align:center;color:var(--muted);font-size:14px;padding:8px 16px 40px
   <details><summary>The Logs page is empty, or a line I expect is missing.</summary><p>It may be older than its retention (Error and Warn 15 days, Info 3 days), or it is a Debug line and Debug is not stored by default.</p></details>
   <details><summary>Performance is empty.</summary><p>It needs ASP.NET <code>Request finished ... - 200 - ... 12.3ms</code> lines in your logs.</p></details>
   <details><summary>"Too many failed sign-in attempts".</summary><p>After 5 wrong passwords for one email, that email is locked for 15 minutes. Wait, then try again.</p></details>
-  <details><summary>How fresh is the data?</summary><p>Every 10 minutes by default. You can choose 2, 5, 7 or 10 minutes on your account page. It is not real time.</p></details>
+  <details><summary>How fresh is the data?</summary><p>Every 10 minutes by default. You can choose 10 seconds, 15 seconds, 7 minutes or 10 minutes on your account page. It is not real time.</p></details>
   <details><summary>Does it change my logs?</summary><p>No. It only reads them.</p></details>
   <details><summary>Where is my data stored?</summary><p>Next to the program, in <code>app.db</code> and the <code>environments/</code> folder. Keep them when you update.</p></details>
   <details><summary>How do I update?</summary><p>Download the new zip and replace only the program file (<code>LogAnalyser.Api.exe</code>, or <code>LogAnalyser.Api</code> and <code>run.sh</code>). Leave <code>config.json</code>, <code>app.db</code> and <code>environments/</code> alone.</p></details>
