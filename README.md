@@ -171,6 +171,34 @@ Two extra pages then appear inside an environment:
 
 ---
 
+## 🔗 Link your code (optional)
+
+Point a project at the folder on your computer that holds its code (a git clone, with git installed), and each problem page gets a **Code** card: the file and failing line from the stack trace, who last changed it, and recent changes marked **Possible cause** when they landed shortly before the problem appeared. Log Analyser only reads the folder, never changes it, and hides files that look like secrets.
+
+In the project's edit form, use the **Code** card (one repository, several paths, or a folder that holds all your repositories), or from a terminal: `log-analyser init --repo "C:\code\business-clm-analytics" --branch main`. Full steps: [Link your code](USER_GUIDE.md#-link-your-code-optional) in the user guide.
+
+---
+
+## 💻 Command line and AI agents (optional)
+
+If you like a terminal, Log Analyser also comes as an npm package (Node 18 or newer, and a `log-analyser-<version>-<platform>.tgz` file from whoever shares it):
+
+```
+npm install -g ./log-analyser-1.3.0-win-x64.tgz
+log-analyser init
+log-analyser start
+```
+
+Other commands: `status`, `doctor`, `analyse`, `report` and `mcp`. The `mcp` command lets an AI assistant such as Claude Code search your collected logs, read-only:
+
+```
+claude mcp add log-analyser -- log-analyser mcp
+```
+
+Full steps: [Command line](USER_GUIDE.md#-command-line) and [Use it from an AI agent (MCP)](USER_GUIDE.md#-use-it-from-an-ai-agent-mcp) in the user guide.
+
+---
+
 ## 🛑 Stopping it
 
 - **Windows:** click your name in the top bar, then **Quit Log Analyser**.

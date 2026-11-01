@@ -58,3 +58,13 @@ Build first, then attach the resulting zips to a tagged release:
 
 The version passed to the build script should match the tag (without the `v`) so the
 zip filenames line up with the release they're attached to.
+
+## Command line and MCP package
+
+The same app is also packaged as an npm command line (`log-analyser`, including the
+read-only `mcp` server for AI agents). It lives in the `cli/` folder of this repo and is
+built with `cli/scripts/build-npm.ps1` (`-Rid` picks the platform, `-Version` sets the version,
+`-SkipWebApp` reuses the current web build), or `cli/scripts/build-all.ps1` for all four
+platforms. It produces one `log-analyser-<version>-<rid>.tgz` per platform in `cli/release/`.
+The release workflow builds and attaches them on every version tag. Install and usage are in
+`cli/README.md` and the user guide.

@@ -78,7 +78,7 @@ footer{text-align:center;color:var(--muted);font-size:14px;padding:8px 16px 40px
 <nav>
   <a href="#what">What it is</a><a href="#start">Get started</a><a href="#setup">Set up logs</a>
   <a href="#dashboard">Dashboard</a><a href="#investigate">Investigate</a><a href="#logs">Logs</a><a href="#more">More pages</a>
-  <a href="#settings">Settings</a><a href="#refresh">Refresh rate</a><a href="#ai">AI analysis</a><a href="#stop">Stop</a><a href="#faq">FAQ</a>
+  <a href="#settings">Settings</a><a href="#refresh">Refresh rate</a><a href="#ai">AI analysis</a><a href="#code">Link your code</a><a href="#cli">Command line</a><a href="#mcp">AI agent (MCP)</a><a href="#stop">Stop</a><a href="#faq">FAQ</a>
 </nav>
 
 <section id="what">
@@ -240,6 +240,142 @@ footer{text-align:center;color:var(--muted);font-size:14px;padding:8px 16px 40px
   <p><b>AI analysis</b> explains each new or spiking error with a category (Database, Timeout/Network, Authentication and so on), possible causes marked as hypotheses, and steps to investigate. Filter by service or category, and use <b>Download report</b> or <b>Copy report</b> for a ready-to-share Markdown summary.</p>
   <p><b>Paste logs</b> lets you paste any log text and get a summary, the error messages found, possible causes, investigation steps and what information is missing. Nothing is saved, and emails, IP addresses, card numbers and tokens are masked before analysis.</p>
   <div class="callout tip"><span>💡</span><span>Answers are AI suggestions, so treat them as a starting point. A normal PC analyses a few problems per minute. If Ollama is not running, these pages say so and the rest of the app works as usual.</span></div>
+</section>
+
+<section id="code">
+  <h2>Link your code (optional)</h2>
+  <p class="lead">Point a project at the folder on your computer that holds its code, and every problem page can show the code behind the error: the file the stack trace points at, the failing line with the lines around it, who last changed each line, and what changed recently.</p>
+
+  <h3>What you get</h3>
+  <p>On a problem's page, a <b>Code</b> card shows:</p>
+  <ul>
+    <li>The file and line from the stack trace, with the failing line highlighted and the code around it.</li>
+    <li>Who last changed each line and when (git "blame").</li>
+    <li><b>Recent changes to this file</b>, with a <b>Possible cause</b> marker on any change made in the 14 days before the problem first appeared.</li>
+    <li>The branch and commit it read, so you know exactly which version you are looking at.</li>
+    <li><b>Explain with code:</b> if <a href="#ai">AI analysis</a> is on, the local Ollama model suggests a likely cause based on the code.</li>
+  </ul>
+
+  <h3>Set it up</h3>
+  <p><b>You need:</b> <a href="https://git-scm.com/downloads">git</a> installed, and your code on your computer as git clones: either one repository, for example <code>C:\code\business-clm-analytics</code>, or a folder that holds several, for example <code>C:\code\CLM</code> with one sub-folder per repository.</p>
+  <ol>
+    <li>Open your project's <b>edit</b> form and find the <b>Code</b> card.</li>
+    <li>Type the full path in <b>Repository folder</b>. It can be one repository, a folder that holds several repositories (every sub-folder that is a git repository is used), or several paths, one per line (or separated by <code>;</code>).</li>
+    <li>Click <b>Test / Load branches</b>. With several repositories it tells you how many it found.</li>
+    <li>Pick a <b>Branch</b>, or leave <b>Current branch in that folder</b>. Leaving it means each repository uses whatever it has checked out. Picking a branch uses it in every repository that has it; the others use their current branch.</li>
+    <li>Click <b>Save code settings</b>.</li>
+  </ol>
+  <p><b>Remove</b> clears the setting.</p>
+  <p>Prefer a terminal? Add the folder when you set up, and check it any time:</p>
+  <div class="example"><pre><code>log-analyser init --repo "C:\code\business-clm-analytics" --branch main
+log-analyser init --repo "C:\code\CLM"      # a folder of repositories
+log-analyser doctor</code></pre></div>
+  <p><code>doctor</code> checks that git is installed and that the folder and branch can be read. See <a href="#cli">Command line</a>.</p>
+  <div class="callout safe"><span>🔒</span><span>Log Analyser only <b>reads</b> your folder (with <code>git show</code>, <code>blame</code>, <code>log</code> and <code>grep</code>). It never checks out a branch, fetches, edits a file or runs your code, so your current branch and uncommitted work are untouched. Files that look like they hold secrets (<code>.env</code>, keys, certificates, credentials), and binary or very large files, are never shown. Code sent to the local AI model is masked first, and nothing leaves your computer.</span></div>
+
+  <h3>Good to know</h3>
+  <ul>
+    <li>It reads the <b>branch you chose</b>, which may not be what is deployed, so line numbers can be off. The card says which branch and commit it used.</li>
+    <li>It finds the file by the end of the path in the log, then by class name, then by searching for the method name. When it is a guess, the card says so.</li>
+    <li>If the log has no file and line, it shows where the method is, or the start of the file.</li>
+    <li>With several repositories, the file is looked for in each one. The longest match of the path in the log wins, and when two repositories match equally the one whose name fits the service wins (for example <code>business-clm-analytics</code> prefers a repository named <code>...-clm-analytics</code>). The card shows which repository the file came from.</li>
+    <li>File matching is tuned to the stack-trace formats Log Analyser already reads.</li>
+  </ul>
+</section>
+
+<section id="cli">
+  <h2>Command line</h2>
+  <p class="lead">Prefer a terminal? Log Analyser also comes as a command line you install with npm. It runs the same app, so everything above still applies.</p>
+  <p><b>You need:</b> Node 18 or newer, and a file named like <code>log-analyser-1.3.0-win-x64.tgz</code> from whoever shares Log Analyser with you. The platform in the name is <code>win-x64</code>, <code>osx-x64</code>, <code>osx-arm64</code> or <code>linux-x64</code>. Pick the one that matches your computer.</p>
+  <div class="example"><pre><code>npm install -g ./log-analyser-1.3.0-win-x64.tgz</code></pre></div>
+  <div class="callout warn"><span>⚠️</span><span>Keep the <code>./</code> (or give the full path). Without it, npm thinks the file name is a GitHub user/repo and fails.</span></div>
+
+  <h3>Set up and start</h3>
+  <div class="example"><pre><code>log-analyser init
+log-analyser start</code></pre></div>
+  <p><code>init</code> asks for your email, name, password (8 characters or more), a project name, the log folder of each service, an environment name, the log folder path and an optional prefix. For example:</p>
+  <div class="example"><pre><code>Your email (sign-in for the dashboard): you@example.com
+Project name [My services]: Business CLM
+Service log folders, comma separated: business-clm-analytics
+Environment name [dev]: dev
+Log folder path: \server\AKS-Dev-Logs\business-clm
+Folder prefix (blank for none): dev-</code></pre></div>
+  <p>You can also pass the answers as flags, which is handy for scripts: <code>--email</code>, <code>--name</code>, <code>--password</code>, <code>--project</code>, <code>--services</code>, <code>--env</code>, <code>--path</code>, <code>--prefix</code>. Piped answers work too. To also <a href="#code">link the project's code</a>, add <code>--repo FOLDER</code> and optionally <code>--branch NAME</code>.</p>
+  <div class="example"><pre><code>log-analyser init --email you@example.com --project "Business CLM" --services business-clm-analytics --env dev --path "\server\AKS-Dev-Logs\business-clm" --prefix dev-</code></pre></div>
+  <p><code>start</code> runs the app and opens <b>http://localhost:5171</b>. Typing just <code>log-analyser</code> does the same.</p>
+
+  <h3>All commands</h3>
+  <table>
+    <tr><th>Command</th><th>What it does</th></tr>
+    <tr><td><code>init</code></td><td>Adds an account, project and environment (see above)</td></tr>
+    <tr><td><code>start</code></td><td>Runs the app and opens it in your browser (the default)</td></tr>
+    <tr><td><code>status</code></td><td>Shows each environment, its last check, problems and stored log lines</td></tr>
+    <tr><td><code>doctor</code></td><td>Checks the data folder, the port, your log folders, Ollama and, if you linked code, git, the code folder and the branch</td></tr>
+    <tr><td><code>analyse</code> (or <code>analyze</code>)</td><td>Explains new and spiking problems with the local AI model, then exits. Options: <code>--env NAME</code>, <code>--signature SIG</code></td></tr>
+    <tr><td><code>report</code></td><td>Prints the analysed problems as a Markdown report. Options: <code>--env NAME</code>, <code>--service NAME</code>, <code>--category NAME</code>, <code>--out FILE</code></td></tr>
+    <tr><td><code>mcp</code></td><td>Runs the AI-agent server (see the next section)</td></tr>
+    <tr><td><code>version</code></td><td>Prints the version</td></tr>
+    <tr><td><code>help</code></td><td>Lists the commands</td></tr>
+  </table>
+  <p>An unknown command prints the help and exits with code 2.</p>
+
+  <h3>Analyse and report</h3>
+  <p><code>analyse</code> needs <a href="#ai">AI analysis</a> turned on and Ollama running. On a computer without a graphics card it can take a minute or two per problem. Press <code>Ctrl+C</code> to stop.</p>
+  <div class="example"><pre><code>log-analyser analyse --env dev
+log-analyser report --env dev --out dev-report.md</code></pre></div>
+  <p>If you have only one environment you can leave out <code>--env</code>.</p>
+
+  <h3>Where your data lives</h3>
+  <p>In a folder called <code>.log-analyser</code> in your home folder. To use another folder, set the <code>LOG_ANALYSER_HOME</code> environment variable. Log lines older than the retention window (see <a href="#logs">Logs</a>) are dropped.</p>
+
+  <h3>Remove it</h3>
+  <div class="example"><pre><code>npm uninstall -g log-analyser</code></pre></div>
+  <p>Your data stays in <code>~/.log-analyser</code> until you delete that folder.</p>
+</section>
+
+<section id="mcp">
+  <h2>Use it from an AI agent (MCP)</h2>
+  <p class="lead">Let an AI assistant look at your collected logs for you. <code>log-analyser mcp</code> is a <b>read-only</b> MCP server: the assistant can ask questions, but it cannot change anything.</p>
+  <p>It reads your local data directly, so <b>Log Analyser does not need to be running</b>. You do need to have installed the <a href="#cli">command line</a> and added at least one environment with <code>log-analyser init</code>.</p>
+
+  <h3>Connect Claude Code</h3>
+  <div class="example"><pre><code>claude mcp add log-analyser -- log-analyser mcp</code></pre></div>
+
+  <h3>Connect another assistant</h3>
+  <p>Add this to the MCP settings of your assistant:</p>
+  <div class="example"><pre><code>{
+  "mcpServers": {
+    "log-analyser": {
+      "command": "log-analyser",
+      "args": ["mcp"]
+    }
+  }
+}</code></pre></div>
+
+  <h3>What the assistant can do</h3>
+  <table>
+    <tr><th>Tool</th><th>Use</th></tr>
+    <tr><td><code>list_environments</code></td><td>See your environments, their services and last check</td></tr>
+    <tr><td><code>list_problems</code></td><td>List tracked problems, newest first</td></tr>
+    <tr><td><code>get_problem</code></td><td>Details of one problem</td></tr>
+    <tr><td><code>search_logs</code></td><td>Search stored log lines</td></tr>
+    <tr><td><code>get_trace</code></td><td>Follow one trace ID across services</td></tr>
+    <tr><td><code>get_context</code></td><td>Lines around one log line</td></tr>
+    <tr><td><code>endpoint_performance</code></td><td>Response times per endpoint</td></tr>
+    <tr><td><code>get_code_context</code></td><td>The code behind a problem: file, failing line, blame and recent changes (needs a <a href="#code">linked code folder</a>)</td></tr>
+    <tr><td><code>get_analysis</code></td><td>Stored AI explanation of a problem</td></tr>
+  </table>
+
+  <h3>Try asking</h3>
+  <ul>
+    <li>"What are the new or spiking problems in dev?"</li>
+    <li>"Show me the latest errors from business-clm-analytics and what is likely causing them."</li>
+    <li>"Follow trace ID <code>abc123</code> across all services."</li>
+    <li>"Which endpoints are the slowest?"</li>
+    <li>"What happened around that timeout, in the minute before and after?"</li>
+    <li>"Find the code behind problem <code>&lt;signature&gt;</code> and tell me what recently changed there."</li>
+  </ul>
+  <div class="callout safe"><span>🔒</span><span>Emails, IP addresses, card numbers and tokens are masked before anything is sent to the assistant, including code from <code>get_code_context</code>. Results are capped at 200 lines (about 60,000 characters), so ask narrower questions if an answer looks cut off.</span></div>
 </section>
 
 <section id="settings">

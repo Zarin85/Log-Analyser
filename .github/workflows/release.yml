@@ -81,6 +81,14 @@ jobs:
         working-directory: Log-Analyser
         run: ./scripts/build-package.ps1 -Version "${{ steps.version.outputs.version }}"
 
+      # The installable command-line package (npm install -g ./log-analyser-<version>-<platform>.tgz),
+      # one per platform, built from cli/. The Angular app was already built and merged into the
+      # API's wwwroot by the step above, so it is reused here.
+      - name: Build command-line packages
+        shell: pwsh
+        working-directory: Log-Analyser/cli
+        run: ./scripts/build-all.ps1 -SkipWebApp -Version "${{ steps.version.outputs.version }}"
+
       - name: Generate release notes
         id: notes
         run: |
@@ -150,6 +158,25 @@ jobs:
             echo "Each package is fully self-contained — no separate .NET, Node, or database"
             echo "install required on the machine running it."
             echo ""
+            echo "#### ⌨️ Command line + AI-agent (MCP) package"
+            echo ""
+            echo "Prefer a terminal? Install the command instead (needs Node 18+). Pick the file for your computer:"
+            echo ""
+            echo "| Platform | Package |"
+            echo "|---|---|"
+            echo "| 🪟 Windows (x64) | [log-analyser-$VERSION-win-x64.tgz]($REL/log-analyser-$VERSION-win-x64.tgz) |"
+            echo "| 🍎 macOS (Intel) | [log-analyser-$VERSION-osx-x64.tgz]($REL/log-analyser-$VERSION-osx-x64.tgz) |"
+            echo "| 🍎 macOS (Apple Silicon) | [log-analyser-$VERSION-osx-arm64.tgz]($REL/log-analyser-$VERSION-osx-arm64.tgz) |"
+            echo "| 🐧 Linux (x64) | [log-analyser-$VERSION-linux-x64.tgz]($REL/log-analyser-$VERSION-linux-x64.tgz) |"
+            echo ""
+            echo "\`\`\`"
+            echo "npm install -g ./log-analyser-$VERSION-win-x64.tgz   # use the file you downloaded"
+            echo "log-analyser init     # set up once"
+            echo "log-analyser start    # open http://localhost:5171"
+            echo "\`\`\`"
+            echo ""
+            echo "Also: \`status\`, \`doctor\`, \`analyse\`, \`report\` and \`mcp\` (a read-only MCP server for AI agents)."
+            echo ""
             echo "### ✨ Core highlights"
             echo ""
             echo "- **Automatic error grouping** — normalises and signature-hashes log lines so recurring errors collapse into one tracked problem instead of hundreds of near-duplicates"
@@ -194,4 +221,6 @@ jobs:
           tag_name: ${{ steps.version.outputs.tag }}
           name: "🔍 Log Analyser ${{ steps.version.outputs.tag }}"
           body_path: Log-Analyser/RELEASE_NOTES.md
-          files: Log-Analyser/release/*.zip
+          files: |
+            Log-Analyser/release/*.zip
+            Log-Analyser/cli/release/*.tgz
