@@ -229,10 +229,10 @@ log-analyser doctor
 
 Prefer a terminal? Log Analyser also comes as a command line you install with npm. It runs the same app, so everything above still applies.
 
-**You need:** Node 18 or newer, and a file named like `log-analyser-1.3.0-win-x64.tgz` from whoever shares Log Analyser with you. The platform in the name is `win-x64`, `osx-x64`, `osx-arm64` or `linux-x64`. Pick the one that matches your computer.
+**You need:** Node 18 or newer, and a file named like `log-analyser-1.4.0-win-x64.tgz` from whoever shares Log Analyser with you. The platform in the name is `win-x64`, `osx-x64`, `osx-arm64` or `linux-x64`. Pick the one that matches your computer.
 
 ```
-npm install -g ./log-analyser-1.3.0-win-x64.tgz
+npm install -g ./log-analyser-1.4.0-win-x64.tgz
 ```
 
 > ⚠️ Keep the `./` (or give the full path). Without it, npm thinks `log-analyser-...tgz` is a GitHub user/repo name and fails.
@@ -244,30 +244,27 @@ log-analyser init
 log-analyser start
 ```
 
-`init` asks for your email, name, password (8 characters or more), a project name, the log folder of each service, an environment name, the log folder path and an optional prefix. For example:
+`init` is optional. Run on its own it only prepares your data folder and prints the next steps; it does not ask you anything. `start` runs the app and opens **http://localhost:5171**. Then:
+
+1. Click **Sign up** and create your account. This only creates the account.
+2. **Sign in** with it.
+3. Create your project and environment on the **Projects** page ([Set up your logs](#-set-up-your-logs)).
+
+### Scripted setup (optional)
+
+To do the account, project and environment from a script instead, pass flags to `init`: `--email`, `--name`, `--password`, `--project`, `--services`, `--env`, `--path`, `--prefix`. To also [link the project's code](#-link-your-code-optional), add `--repo FOLDER` and optionally `--branch NAME`.
 
 ```
-Your email (sign-in for the dashboard): you@example.com
-Project name [My services]: Business CLM
-Service log folders, comma separated: business-clm-analytics
-Environment name [dev]: dev
-Log folder path: \server\AKS-Dev-Logs\business-clm
-Folder prefix (blank for none): dev-
+log-analyser init --email you@example.com --project "Business CLM" --services business-clm-analytics --env dev --path "\\server\AKS-Dev-Logs\business-clm" --prefix dev-
 ```
 
-You can also pass the answers as flags, which is handy for scripts: `--email`, `--name`, `--password`, `--project`, `--services`, `--env`, `--path`, `--prefix`. Piped answers work too. To also [link the project's code](#-link-your-code-optional), add `--repo FOLDER` and optionally `--branch NAME`.
-
-```
-log-analyser init --email you@example.com --project "Business CLM" --services business-clm-analytics --env dev --path "\server\AKS-Dev-Logs\business-clm" --prefix dev-
-```
-
-`start` runs the app and opens **http://localhost:5171**. Typing just `log-analyser` does the same.
+Typing just `log-analyser` does the same as `log-analyser start`.
 
 ### All commands
 
 | Command | What it does |
 |---|---|
-| `init` | Adds an account, project and environment (see above) |
+| `init` | Prepares the data folder and prints the next steps. With flags, also adds an account, project and environment (see above) |
 | `start` | Runs the app and opens it in your browser (the default) |
 | `status` | Shows each environment, its last check, problems and stored log lines |
 | `doctor` | Checks the data folder, the port, your log folders, Ollama and, if you linked code, git, the code folder and the branch |
@@ -308,7 +305,7 @@ Your data stays in `~/.log-analyser` until you delete that folder.
 
 Let an AI assistant look at your collected logs for you. `log-analyser mcp` is a **read-only** [MCP](https://modelcontextprotocol.io) server: the assistant can ask questions, but it cannot change anything.
 
-It reads your local data directly, so **Log Analyser does not need to be running**. You do need to have installed the [command line](#-command-line) and added at least one environment with `log-analyser init`.
+It reads your local data directly, so **Log Analyser does not need to be running**. You do need to have installed the [command line](#-command-line) and set up at least one environment (in the app, or with `log-analyser init` flags).
 
 ### Connect Claude Code
 

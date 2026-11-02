@@ -59,10 +59,10 @@ Download the zip for your computer from the **Assets** section of the release:
 If the browser does not open, go to **http://localhost:5171**.
 
 ### 2. Create your account
-Click **Sign up** and enter a name, email and password. The account is stored only on your computer.
+Click **Sign up** and enter a name, email and password. The account is stored only on your computer. Signing up only creates the account, so **sign in** with it afterwards.
 
 ### 3. Create a project
-A project is one application or system. Give it a name and add one row for each **service log folder** (for example `business-clm-analytics`).
+After you sign in, the **Projects** page shows **Get started in three steps**: create a project, add an environment, and watch the dashboard. A project is one application or system. Give it a name and add one row for each **service log folder** (for example `business-clm-analytics`).
 
 ### 4. Add an environment
 An environment is one place the logs live (for example Dev, Test or Prod). Give it a name and the **log path**: the root folder that contains your service folders. If the folders start with `dev-` or similar, put that in **Folder prefix**. Example: log path `\\server\AKS-Dev-Logs\business-clm`, prefix `dev-`, service `business-clm-analytics` means it reads `\\server\AKS-Dev-Logs\business-clm\dev-business-clm-analytics`, including sub-folders such as `ClmAnalyticsWebService`.
@@ -184,10 +184,12 @@ In the project's edit form, use the **Code** card (one repository, several paths
 If you like a terminal, Log Analyser also comes as an npm package (Node 18 or newer, and a `log-analyser-<version>-<platform>.tgz` file from whoever shares it):
 
 ```
-npm install -g ./log-analyser-1.3.0-win-x64.tgz
+npm install -g ./log-analyser-1.4.0-win-x64.tgz
 log-analyser init
 log-analyser start
 ```
+
+`init` is optional: it only prepares your data folder and prints the next steps. `start` opens **http://localhost:5171**. Sign up, sign in, then create your project and environment in the app, as in [Getting started](#-getting-started) above. To skip the app setup, you can pass everything to `init` as flags (see the user guide).
 
 Other commands: `status`, `doctor`, `analyse`, `report` and `mcp`. The `mcp` command lets an AI assistant such as Claude Code search your collected logs, read-only:
 

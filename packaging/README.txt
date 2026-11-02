@@ -18,7 +18,8 @@ window open; closing it or pressing Ctrl+C stops LogAnalyser.
 
 First time use
 ---------------
-Sign up for an account in the browser, create a project (list the services
+Click Sign up in the browser (this only creates your account), then sign in.
+On the Projects page, create a project (list the services
 whose logs you want analysed), then add an environment with the log path
 you have access to. LogAnalyser checks for new environments/log paths
 automatically every 10 minutes by default, and immediately the first time you

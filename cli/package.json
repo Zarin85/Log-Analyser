@@ -1,6 +1,6 @@
 {
   "name": "log-analyser",
-  "version": "1.3.0",
+  "version": "1.4.0",
   "description": "Log Analyser command line: log-analyser init | start | status | doctor",
   "license": "UNLICENSED",
   "private": true,

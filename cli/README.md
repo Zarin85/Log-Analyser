@@ -6,12 +6,12 @@ only used to start it.
 
 ## Install
 
-You need Node 18+ and a file named like `log-analyser-1.3.0-win-x64.tgz`, given to you by
+You need Node 18+ and a file named like `log-analyser-1.4.0-win-x64.tgz`, given to you by
 whoever shares Log Analyser. The platform in the name is `win-x64`, `osx-x64`, `osx-arm64` or
 `linux-x64`; use the one that matches your computer.
 
 ```
-npm install -g ./log-analyser-1.3.0-win-x64.tgz
+npm install -g ./log-analyser-1.4.0-win-x64.tgz
 ```
 
 Keep the `./` (or give the full path). Without it, npm reads the name as a GitHub `user/repo`
@@ -24,20 +24,15 @@ log-analyser init
 log-analyser start
 ```
 
-`init` asks for your email, name, password (8+ characters), project, the log folder of each
-service, an environment name, the log folder path and an optional prefix. For example:
+`init` is optional. On its own it only prepares your data folder and prints the next steps.
+`start` runs the app and opens http://localhost:5171. Then click Sign up (this only creates the
+account), sign in, and create your project and environment on the Projects page ("Get started in
+three steps").
+
+To script the setup instead, pass flags to `init` (`--email --name --password --project --services --env --path --prefix`, and `--repo FOLDER --branch NAME` to link the project's code: one repository, several paths separated by `;`, or a folder that holds several repositories). For example:
 
 ```
-Log folder path: \server\AKS-Dev-Logs\business-clm
-Service log folders: business-clm-analytics
-Folder prefix (blank for none): dev-
-```
-
-Or pass flags (`--email --name --password --project --services --env --path --prefix`, and `--repo FOLDER --branch NAME` to link the project's code: one repository, several paths separated by `;`, or a folder that holds several repositories);
-piped answers work too:
-
-```
-log-analyser init --email you@example.com --project "Business CLM" --services business-clm-analytics --env dev --path "\server\AKS-Dev-Logs\business-clm" --prefix dev-
+log-analyser init --email you@example.com --project "Business CLM" --services business-clm-analytics --env dev --path "\\server\AKS-Dev-Logs\business-clm" --prefix dev-
 ```
 
 `start` runs the app and opens http://localhost:5171. Running `log-analyser` with no command
@@ -47,7 +42,7 @@ does the same.
 
 | Command | What it does |
 |---|---|
-| `init` | Adds an account, project and environment |
+| `init` | Prepares the data folder and prints next steps; with flags, also adds an account, project and environment |
 | `start` | Runs the app and opens it in your browser (default) |
 | `status` | Environments, last check, problems and stored log lines |
 | `doctor` | Checks the data folder, port, log folders, Ollama and, if code is linked, git, the code folder and the branch |

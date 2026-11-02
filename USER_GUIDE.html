@@ -101,14 +101,14 @@ footer{text-align:center;color:var(--muted);font-size:14px;padding:8px 16px 40px
   <div class="steps">
     <div class="step"><b>Download</b>Get the zip for your computer from the <a href="https://github.com/Zarin85/Log-Analyser/releases/latest">releases page</a> and extract it.</div>
     <div class="step"><b>Start it</b>Windows: double-click <code>LogAnalyser.Api.exe</code>.<br>Mac/Linux: run <code>./run.sh</code> in Terminal.</div>
-    <div class="step"><b>Open it</b>Your browser opens at <code>http://localhost:5171</code>. Sign up (the account stays on your computer).</div>
+    <div class="step"><b>Open it</b>Your browser opens at <code>http://localhost:5171</code>. Click <b>Sign up</b> (the account stays on your computer; signing up does not sign you in), then sign in.</div>
   </div>
   <div class="callout warn"><span>⚠️</span><span>Windows may say it "protected your PC" because the app is not code-signed. Click <b>More info → Run anyway</b>.</span></div>
 </section>
 
 <section id="setup">
   <h2>Set up your logs</h2>
-  <p class="lead">You do this once. Tell the app <b>what</b> to watch (a project) and <b>where</b> the logs are (an environment).</p>
+  <p class="lead">You do this once, inside the app. After you sign in, the <b>Projects</b> page shows <b>Get started in three steps</b>. Tell the app <b>what</b> to watch (a project) and <b>where</b> the logs are (an environment).</p>
 
   <h3>Your logs must look like this</h3>
   <ul>
@@ -286,28 +286,29 @@ log-analyser doctor</code></pre></div>
 <section id="cli">
   <h2>Command line</h2>
   <p class="lead">Prefer a terminal? Log Analyser also comes as a command line you install with npm. It runs the same app, so everything above still applies.</p>
-  <p><b>You need:</b> Node 18 or newer, and a file named like <code>log-analyser-1.3.0-win-x64.tgz</code> from whoever shares Log Analyser with you. The platform in the name is <code>win-x64</code>, <code>osx-x64</code>, <code>osx-arm64</code> or <code>linux-x64</code>. Pick the one that matches your computer.</p>
-  <div class="example"><pre><code>npm install -g ./log-analyser-1.3.0-win-x64.tgz</code></pre></div>
+  <p><b>You need:</b> Node 18 or newer, and a file named like <code>log-analyser-1.4.0-win-x64.tgz</code> from whoever shares Log Analyser with you. The platform in the name is <code>win-x64</code>, <code>osx-x64</code>, <code>osx-arm64</code> or <code>linux-x64</code>. Pick the one that matches your computer.</p>
+  <div class="example"><pre><code>npm install -g ./log-analyser-1.4.0-win-x64.tgz</code></pre></div>
   <div class="callout warn"><span>⚠️</span><span>Keep the <code>./</code> (or give the full path). Without it, npm thinks the file name is a GitHub user/repo and fails.</span></div>
 
   <h3>Set up and start</h3>
   <div class="example"><pre><code>log-analyser init
 log-analyser start</code></pre></div>
-  <p><code>init</code> asks for your email, name, password (8 characters or more), a project name, the log folder of each service, an environment name, the log folder path and an optional prefix. For example:</p>
-  <div class="example"><pre><code>Your email (sign-in for the dashboard): you@example.com
-Project name [My services]: Business CLM
-Service log folders, comma separated: business-clm-analytics
-Environment name [dev]: dev
-Log folder path: \server\AKS-Dev-Logs\business-clm
-Folder prefix (blank for none): dev-</code></pre></div>
-  <p>You can also pass the answers as flags, which is handy for scripts: <code>--email</code>, <code>--name</code>, <code>--password</code>, <code>--project</code>, <code>--services</code>, <code>--env</code>, <code>--path</code>, <code>--prefix</code>. Piped answers work too. To also <a href="#code">link the project's code</a>, add <code>--repo FOLDER</code> and optionally <code>--branch NAME</code>.</p>
-  <div class="example"><pre><code>log-analyser init --email you@example.com --project "Business CLM" --services business-clm-analytics --env dev --path "\server\AKS-Dev-Logs\business-clm" --prefix dev-</code></pre></div>
-  <p><code>start</code> runs the app and opens <b>http://localhost:5171</b>. Typing just <code>log-analyser</code> does the same.</p>
+  <p><code>init</code> is optional. Run on its own it only prepares your data folder and prints the next steps; it does not ask you anything. <code>start</code> runs the app and opens <b>http://localhost:5171</b>. Then:</p>
+  <ol>
+    <li>Click <b>Sign up</b> and create your account. This only creates the account.</li>
+    <li><b>Sign in</b> with it.</li>
+    <li>Create your project and environment on the <b>Projects</b> page (<a href="#setup">Set up your logs</a>).</li>
+  </ol>
+
+  <h3>Scripted setup (optional)</h3>
+  <p>To do the account, project and environment from a script instead, pass flags to <code>init</code>: <code>--email</code>, <code>--name</code>, <code>--password</code>, <code>--project</code>, <code>--services</code>, <code>--env</code>, <code>--path</code>, <code>--prefix</code>. To also <a href="#code">link the project's code</a>, add <code>--repo FOLDER</code> and optionally <code>--branch NAME</code>.</p>
+  <div class="example"><pre><code>log-analyser init --email you@example.com --project "Business CLM" --services business-clm-analytics --env dev --path "\\server\AKS-Dev-Logs\business-clm" --prefix dev-</code></pre></div>
+  <p>Typing just <code>log-analyser</code> does the same as <code>log-analyser start</code>.</p>
 
   <h3>All commands</h3>
   <table>
     <tr><th>Command</th><th>What it does</th></tr>
-    <tr><td><code>init</code></td><td>Adds an account, project and environment (see above)</td></tr>
+    <tr><td><code>init</code></td><td>Prepares the data folder and prints the next steps. With flags, also adds an account, project and environment (see above)</td></tr>
     <tr><td><code>start</code></td><td>Runs the app and opens it in your browser (the default)</td></tr>
     <tr><td><code>status</code></td><td>Shows each environment, its last check, problems and stored log lines</td></tr>
     <tr><td><code>doctor</code></td><td>Checks the data folder, the port, your log folders, Ollama and, if you linked code, git, the code folder and the branch</td></tr>
@@ -336,7 +337,7 @@ log-analyser report --env dev --out dev-report.md</code></pre></div>
 <section id="mcp">
   <h2>Use it from an AI agent (MCP)</h2>
   <p class="lead">Let an AI assistant look at your collected logs for you. <code>log-analyser mcp</code> is a <b>read-only</b> MCP server: the assistant can ask questions, but it cannot change anything.</p>
-  <p>It reads your local data directly, so <b>Log Analyser does not need to be running</b>. You do need to have installed the <a href="#cli">command line</a> and added at least one environment with <code>log-analyser init</code>.</p>
+  <p>It reads your local data directly, so <b>Log Analyser does not need to be running</b>. You do need to have installed the <a href="#cli">command line</a> and set up at least one environment (in the app, or with <code>log-analyser init</code> flags).</p>
 
   <h3>Connect Claude Code</h3>
   <div class="example"><pre><code>claude mcp add log-analyser -- log-analyser mcp</code></pre></div>
