@@ -6,12 +6,12 @@ only used to start it.
 
 ## Install
 
-You need Node 18+ and a file named like `log-analyser-1.4.0-win-x64.tgz`, given to you by
+You need Node 18+ and a file named like `log-analyser-1.5.0-win-x64.tgz`, given to you by
 whoever shares Log Analyser. The platform in the name is `win-x64`, `osx-x64`, `osx-arm64` or
 `linux-x64`; use the one that matches your computer.
 
 ```
-npm install -g ./log-analyser-1.4.0-win-x64.tgz
+npm install -g ./log-analyser-1.5.0-win-x64.tgz
 ```
 
 Keep the `./` (or give the full path). Without it, npm reads the name as a GitHub `user/repo`

@@ -11,7 +11,7 @@ Log Analyser reads the log files you already have, groups the repeating errors t
 | Searching raw text for the file and line that threw | Class, method and file:line shown for you |
 | Opening log files one by one to see what happened around an error | A **Logs** page: search every line, filter by level, service and time, follow one request across services |
 | No idea which endpoints are slow | Average / min / max response time per endpoint |
-| Copy-pasting errors into a report | **Export CSV** and a **Weekly digest** in one click |
+| Hunting for one request id across many services | **Ask**: search any id and get a timeline across services |
 
 - 🔒 **Self-hosted.** Your logs never leave your machine or network. No telemetry, no cloud.
 - 🔌 **No setup work.** It reads existing `.log` files. No agents, no code changes. It understands the common `date -- LEVEL -- service -- message` lines out of the box, and can be pointed at other text formats or JSON logs (see [Other log formats](#-other-log-formats-and-settings)).
@@ -59,7 +59,7 @@ Download the zip for your computer from the **Assets** section of the release:
 If the browser does not open, go to **http://localhost:5171**.
 
 ### 2. Create your account
-Click **Sign up** and enter a name, email and password. The account is stored only on your computer. Signing up only creates the account, so **sign in** with it afterwards.
+Click **Sign up** and enter a name, email and password. The account is stored only on your computer. Signing up only creates the account, so **sign in** with it afterwards. Password boxes have an eye button to show or hide what you typed.
 
 ### 3. Create a project
 After you sign in, the **Projects** page shows **Get started in three steps**: create a project, add an environment, and watch the dashboard. A project is one application or system. Give it a name and add one row for each **service log folder** (for example `business-clm-analytics`).
@@ -67,7 +67,7 @@ After you sign in, the **Projects** page shows **Get started in three steps**: c
 ### 4. Add an environment
 An environment is one place the logs live (for example Dev, Test or Prod). Give it a name and the **log path**: the root folder that contains your service folders. If the folders start with `dev-` or similar, put that in **Folder prefix**. Example: log path `\\server\AKS-Dev-Logs\business-clm`, prefix `dev-`, service `business-clm-analytics` means it reads `\\server\AKS-Dev-Logs\business-clm\dev-business-clm-analytics`, including sub-folders such as `ClmAnalyticsWebService`.
 
-That is it. Within a few minutes your problems appear on the dashboard. From then on it runs by itself and keeps checking for new log lines every 10 minutes. You can change this to **10 seconds, 15 seconds, 7 minutes or 10 minutes**: click your name in the top bar and pick a value under **Check logs every**. The seconds options feel almost live but read your log share much more often.
+That is it. Within a few minutes your problems appear on the dashboard. From then on it runs by itself and keeps checking for new log lines every 10 minutes. You can change this to **10 seconds, 15 seconds, 7 minutes or 10 minutes**: open **Account** in the sidebar and pick a value under **Check logs every**. The seconds options feel almost live but read your log share much more often.
 
 ---
 
@@ -88,15 +88,16 @@ That is it. Within a few minutes your problems appear on the dashboard. From the
   New, Spiking and Known are worked out automatically on every check. Suppressed and Resolved are set by you from the problem details page.
 - **Severity:** errors that appear in more than one service are marked **Critical** automatically.
 - **Problem details:** shows where it was thrown (class, method, file:line), the trace ID if there is one, and a chart of when it happened.
-- **Search and sort:** filter by message, service or class, and sort by severity, count or most recent.
-- **Performance:** average, minimum and maximum response time for each endpoint, taken from the same logs.
-- **Export CSV / Weekly digest:** two buttons above the problems table. The CSV lists every problem. The digest is a one-page HTML summary of the last 7 days (counts, top problems, busiest services, slowest endpoints) you can save and share.
+- **Search and sort:** on the **Problems** page, filter by message, service or class, pick a status (with counts), and sort by any column.
+- **Dashboard:** four headline numbers, a **Needs attention** list, a 14-day chart of errors, **Top services** (click one to open Logs for it) and your 10 most recent problems, with a **View all problems** link. A note shows "Collecting · last check ..." and turns amber (**Not collecting**) after 30 minutes. Small links open **Timeline** and **Analysis**.
+- **Endpoints:** calls, average, fastest and slowest response time for each endpoint. Click one for a chart, a by-day table and its 10 slowest calls. Per-call detail comes from stored INFO lines (about 3 days); older history shows averages only.
+- **Navigation:** the sidebar has **Dashboard, Logs, Ask, Endpoints** and **Settings** (Projects, Environments, Account), with a project and environment picker at the top.
 
 ---
 
 ## 🧾 The Logs page
 
-Open **Logs** in the top bar to see every stored log line, not just errors.
+Open **Logs** in the sidebar to see every stored log line, not just errors. Levels are coloured: **ERROR** red, **WARN** amber, **INFO** blue, **DEBUG** grey.
 
 - **Search:** type any text, from a word to part of a stack trace. Matches are highlighted. Searches of 3 or more characters are the fastest.
 - **Filter:** by level (Error, Warn, Info, Debug), by service, and by time range (last 15 minutes up to all stored).
@@ -113,6 +114,16 @@ Open **Logs** in the top bar to see every stored log line, not just errors.
 | Debug | 3 days, but Debug is **not stored** unless you turn it on |
 
 Problem summaries and trends are kept longer (90 days). If a search finds nothing, the line may be older than its retention. Everything is redacted before it is stored, and you can change the numbers below.
+
+---
+
+## 🙋 Ask
+
+Open **Ask** in the sidebar and type or paste an **id** (a GUID or number), an endpoint or some error text. Log Analyser searches the stored logs of every service in the selected environment and shows a **timeline, oldest first**, with level chips, short service names and a step name. Click a line for the full message (JSON is pretty-printed) and **Copy**. Tick **Explain with local model** for a summary (needs [Ollama](#-ai-analysis-optional)).
+
+- Include an id for the best results. A whole sentence is searched as one phrase, so it usually finds nothing.
+- Only stored lines are searchable: INFO and above, with INFO kept 3 days by default.
+- Times are UTC. Emails, IP addresses, cards and tokens are masked.
 
 ---
 
@@ -160,12 +171,12 @@ Log Analyser can explain your problems in plain language using a **free AI model
 
 1. Install Ollama from **ollama.com/download**.
 2. Open a terminal and run `ollama pull qwen2.5:7b` (about 5 GB, one time).
-3. In Log Analyser click your name in the top bar, find **AI analysis (Ollama)**, tick **Turn on AI analysis**, click **Test connection**, then **Save**.
+3. In Log Analyser open **Account** in the sidebar, find **AI analysis (Ollama)**, tick **Turn on AI analysis**, click **Test connection**, then **Save**.
 
-Two extra pages then appear inside an environment:
+Two extra features then become available:
 
-- **AI analysis:** explains each new or spiking error with a category (Database, Timeout/Network, Authentication and so on), possible causes marked as hypotheses, and steps to investigate. Filter by service or category, and use **Download report** or **Copy report** for a ready-to-share Markdown summary.
-- **Paste logs:** paste any log text and get a summary, the error messages found, possible causes, investigation steps and what information is missing. Nothing is saved, and emails, IP addresses, card numbers and tokens are masked before analysis.
+- **AI analysis:** explains each new or spiking error with a category (Database, Timeout/Network, Authentication and so on), possible causes marked as hypotheses, and steps to investigate. Filter by service or category, and use **Copy report** for a ready-to-share Markdown summary.
+- **Paste logs** (the second tab on the **Ask** page): paste any log text and get a summary, the error messages found, possible causes, investigation steps and what information is missing. Nothing is saved, and emails, IP addresses, card numbers and tokens are masked before analysis.
 
 > 💡 Answers are AI suggestions, so treat them as a starting point. A normal PC analyses a few problems per minute. If Ollama is not running, these pages say so and the rest of the app works as usual.
 
@@ -184,7 +195,7 @@ In the project's edit form, use the **Code** card (one repository, several paths
 If you like a terminal, Log Analyser also comes as an npm package (Node 18 or newer, and a `log-analyser-<version>-<platform>.tgz` file from whoever shares it):
 
 ```
-npm install -g ./log-analyser-1.4.0-win-x64.tgz
+npm install -g ./log-analyser-1.5.0-win-x64.tgz
 log-analyser init
 log-analyser start
 ```
@@ -203,7 +214,7 @@ Full steps: [Command line](USER_GUIDE.md#-command-line) and [Use it from an AI a
 
 ## 🛑 Stopping it
 
-- **Windows:** click your name in the top bar, then **Quit Log Analyser**.
+- **Windows:** click **Quit Log Analyser** at the bottom of the sidebar.
 - **Mac / Linux:** press **Ctrl+C** in the Terminal window, or close it.
 
 ## 🔄 Updating to a new version
@@ -236,7 +247,7 @@ Download the new zip and replace only the program file:
 | "Cannot read log files" on an environment | The path is wrong or you do not have permission to it. Check that you can open that folder yourself |
 | Nothing shows up yet | Wait a few minutes. New environments are collected right after you add them |
 | Logs page is empty or a line is missing | It may be older than its retention (see the table above), or it is Debug and Debug is off |
-| No response times on Performance | Your logs need ASP.NET `Request finished ... - 200 - ... 12.3ms` lines |
+| No response times on Endpoints | Your logs need ASP.NET `Request finished ... - 200 - ... 12.3ms` lines |
 | Times show as year 0001 | `timestampFormat` does not match your lines, see [Other log formats](#-other-log-formats-and-settings) |
 | "Too many failed sign-in attempts" | Wait 15 minutes, or sign in with the right password |
 | Port 5171 is already in use | Close any other copy of Log Analyser that is running |

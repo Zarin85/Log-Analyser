@@ -15,7 +15,7 @@ A nicer-looking version of this guide is in [`USER_GUIDE.html`](USER_GUIDE.html)
 
 1. **Download** the zip for your computer from the [releases page](https://github.com/Zarin85/Log-Analyser/releases/latest) and extract it.
 2. **Start it.** Windows: double-click `LogAnalyser.Api.exe`. Mac/Linux: run `./run.sh` in Terminal.
-3. **Use it.** Your browser opens at **http://localhost:5171**. Sign up (the account stays on your computer) and follow the setup below.
+3. **Use it.** Your browser opens at **http://localhost:5171**. Sign up (the account stays on your computer) and follow the setup below. Password boxes have an eye button to show or hide what you typed.
 
 > ⚠️ Windows may say it "protected your PC" because the app is not code-signed. Click **More info → Run anyway**.
 
@@ -70,11 +70,28 @@ After saving, wait a few minutes. The app checks again by itself every **10 minu
 
 ## 📊 Read your dashboard
 
-Click **Open** on an environment. At the top you see the key numbers: active problems, new this week, what is spiking, and your slowest endpoint. Below are charts and a table with **one row per problem**.
+The sidebar on the left has **Dashboard, Logs, Ask, Endpoints**, and a **Settings** group (**Projects, Environments, Account**). At the top of it, pick your **Project** and **Environment**. On the **Projects** page, click **Open** on an environment to land on its dashboard.
 
-**In the table you can:** search by message, service or class; sort by any column; tick **Show all** to include everything (otherwise you see only New and Spiking); and click a row for details.
+The dashboard shows, from top to bottom:
 
-**Share it:** **Export CSV** saves every problem to a spreadsheet file. **Weekly digest** saves a one-page summary of the last 7 days (counts, top problems, busiest services, slowest endpoints) that you can send to your team.
+- **Four numbers:** new problems, spiking problems, errors today, and your slowest endpoint. Click one to jump to the matching list or page.
+- **Needs attention:** the new and spiking problems, each with **Investigate** (and **See code** if you [linked your code](#-link-your-code-optional)).
+- **Errors per day:** a 14-day chart with a one-line takeaway, such as "Today: 12 errors, 14-day average 9 a day".
+- **Top services:** which services logged the most errors. Click a service to open **Logs** filtered to its errors.
+- **Recent problems:** the 10 most recently seen. Click **View all problems** for the full list.
+- **A small note under the title:** "Collecting · last check 2 minutes ago". If nothing has been collected for 30 minutes it turns amber and says **Not collecting**.
+
+Small links at the top right of the dashboard open **Timeline** (every error in time order, with a date range and service filter) and **Analysis** (see [AI analysis](#-ai-analysis-optional)).
+
+### The Problems page
+
+**View all problems** (or any card on the dashboard) opens the full list, one row per problem.
+
+- **Search** by message, service or class.
+- **Status dropdown** with counts: All, Needs attention, New, Spiking, Known, Suppressed, Resolved.
+- **Sort** by clicking any column title.
+- **Clear filters** brings back the full list. **Show 25 more** loads more rows.
+- Click a row for details.
 
 ### What the statuses mean
 
@@ -114,7 +131,7 @@ Then decide: **Suppress** it if it is harmless noise, or **Resolve** it once you
 
 ## 🧾 Search your logs
 
-Open **Logs** in the top bar to see every stored log line, not only errors.
+Open **Logs** in the sidebar to see every stored log line, not only errors. Levels have colours: **ERROR** red, **WARN** amber, **INFO** blue, **DEBUG** grey.
 
 - **Search:** type any text, from a word to part of a stack trace. Matches are highlighted. Searches of 3 or more characters are the fastest.
 - **Filter:** by level (Error, Warn, Info, Debug), by service, and by time range (from the last 15 minutes up to everything stored).
@@ -141,19 +158,53 @@ Problem summaries and trends are kept longer (90 days). If a search finds nothin
 
 ---
 
+## 🙋 Ask: follow an id across services
+
+Open **Ask** in the sidebar. It searches the stored logs of **every service in the selected environment** at once.
+
+1. Type or paste an **id** (a GUID or a number), an **endpoint**, or some **error text**. For example `11111111-2222-3333-4444-555555555555`.
+2. Press **Search**.
+3. You get a **timeline, oldest first**. Each line shows the time, a level chip, a short service name and a step name.
+4. Click a line to open the full message (JSON is pretty-printed). Use **Copy** to copy it.
+
+Tick **Explain with local model** for a short summary of what happened. It needs [AI analysis](#-ai-analysis-optional) (Ollama). **Filters** lets you pick one service and a time range.
+
+**Tips**
+
+- Include an id for the best results.
+- A whole sentence is searched as one phrase, so it usually finds nothing. Search a short, distinctive part instead.
+- Only lines the collector stored are searchable: INFO and above. INFO lines are kept 3 days by default (see [How long lines are kept](#how-long-lines-are-kept)).
+- Times are **UTC**.
+- Emails, IP addresses, card numbers and tokens are masked in what you see.
+
+The second tab on this page is **Paste logs** (see [AI analysis](#-ai-analysis-optional)).
+
+---
+
+## ⚡ Endpoints: response times
+
+Open **Endpoints** in the sidebar. The table lists each endpoint with its number of calls, average, fastest and slowest response time.
+
+Click an endpoint to see a **response-time chart**, a **by-day table** and its **10 slowest calls**.
+
+> 💡 Per-call history comes from stored INFO request lines, which are kept for about 3 days. Older history shows only the daily averages. There is no error count per endpoint. It needs ASP.NET `Request finished ... - 200 - ... 12.3ms` lines in your logs.
+
+---
+
 ## 🧭 More pages
 
-- **Timeline:** every error in time order. Pick a date range and service. Great for "what went wrong around 2pm yesterday?"
-- **Performance:** average, fastest and slowest response time for each endpoint.
+- **Ask:** search any id, endpoint or error text across all services (see [Ask](#-ask-follow-an-id-across-services)).
+- **Endpoints:** response times for each endpoint (see [Endpoints](#-endpoints-response-times)).
+- **Timeline:** every error in time order. Open it from the small link on the dashboard. Pick a date range and service. Great for "what went wrong around 2pm yesterday?"
 - **Service view:** click any service name to see its 30-day trend and all its problems.
-- **AI analysis** and **Paste logs:** optional plain-language explanations of your problems, and a place to paste any log for a quick breakdown (see [AI analysis](#-ai-analysis-optional)).
-- **Account:** click your name in the top bar to see your details, set how often logs are checked, set up AI analysis, sign out, or **Quit Log Analyser**.
+- **Analysis** (link on the dashboard) and **Paste logs** (the second tab on **Ask**): optional plain-language explanations of your problems, and a place to paste any log for a quick breakdown (see [AI analysis](#-ai-analysis-optional)).
+- **Account:** click **Account** in the sidebar to see your details, set how often logs are checked, and set up AI analysis. **Sign out** and **Quit Log Analyser** are at the bottom of the sidebar.
 
 ---
 
 ## ⏱️ How often it checks
 
-By default the app looks for new log lines every **10 minutes**. To change it, click your name in the top bar and use **Check logs every** to pick **10 seconds, 15 seconds, 7 minutes or 10 minutes**. It saves right away and applies within seconds. Shorter means fresher data, but the app reads your log share more often.
+By default the app looks for new log lines every **10 minutes**. To change it, open **Account** in the sidebar and use **Check logs every** to pick **10 seconds, 15 seconds, 7 minutes or 10 minutes**. It saves right away and applies within seconds. Shorter means fresher data, but the app reads your log share more often.
 
 ---
 
@@ -163,12 +214,12 @@ Log Analyser can explain your problems in plain language using a **free AI model
 
 1. Install Ollama from **ollama.com/download**.
 2. Open a terminal and run `ollama pull qwen2.5:7b` (about 5 GB, one time).
-3. In Log Analyser click your name in the top bar, find **AI analysis (Ollama)**, tick **Turn on AI analysis**, click **Test connection**, then **Save**.
+3. In Log Analyser open **Account** in the sidebar, find **AI analysis (Ollama)**, tick **Turn on AI analysis**, click **Test connection**, then **Save**.
 
-Two extra pages then appear inside an environment:
+Two extra features then appear inside an environment:
 
-- **AI analysis:** explains each new or spiking error with a category (Database, Timeout/Network, Authentication and so on), possible causes marked as hypotheses, and steps to investigate. Filter by service or category, and use **Download report** or **Copy report** for a ready-to-share Markdown summary.
-- **Paste logs:** paste any log text and get a summary, the error messages found, possible causes, investigation steps and what information is missing. Nothing is saved, and emails, IP addresses, card numbers and tokens are masked before analysis.
+- **AI analysis:** explains each new or spiking error with a category (Database, Timeout/Network, Authentication and so on), possible causes marked as hypotheses, and steps to investigate. Filter by service or category, and use **Copy report** for a ready-to-share Markdown summary.
+- **Paste logs** (the second tab on the **Ask** page): paste any log text and get a summary, the error messages found, possible causes, investigation steps and what information is missing. Nothing is saved, and emails, IP addresses, card numbers and tokens are masked before analysis.
 
 > 💡 Answers are AI suggestions, so treat them as a starting point. A normal PC analyses a few problems per minute. If Ollama is not running, these pages say so and the rest of the app works as usual.
 
@@ -229,10 +280,10 @@ log-analyser doctor
 
 Prefer a terminal? Log Analyser also comes as a command line you install with npm. It runs the same app, so everything above still applies.
 
-**You need:** Node 18 or newer, and a file named like `log-analyser-1.4.0-win-x64.tgz` from whoever shares Log Analyser with you. The platform in the name is `win-x64`, `osx-x64`, `osx-arm64` or `linux-x64`. Pick the one that matches your computer.
+**You need:** Node 18 or newer, and a file named like `log-analyser-1.5.0-win-x64.tgz` from whoever shares Log Analyser with you. The platform in the name is `win-x64`, `osx-x64`, `osx-arm64` or `linux-x64`. Pick the one that matches your computer.
 
 ```
-npm install -g ./log-analyser-1.4.0-win-x64.tgz
+npm install -g ./log-analyser-1.5.0-win-x64.tgz
 ```
 
 > ⚠️ Keep the `./` (or give the full path). Without it, npm thinks `log-analyser-...tgz` is a GitHub user/repo name and fails.
@@ -275,6 +326,8 @@ Typing just `log-analyser` does the same as `log-analyser start`.
 | `help` | Lists the commands |
 
 An unknown command prints the help and exits with code 2.
+
+To get a shareable Markdown file, use `report --out FILE` (see below).
 
 ### Analyse and report
 
@@ -351,6 +404,8 @@ Add this to the MCP settings of your assistant:
 - "What happened around that timeout, in the minute before and after?"
 - "Find the code behind problem `<signature>` and tell me what recently changed there."
 
+> 💡 Results appear in your AI assistant, not in the web app.
+
 > 🔒 Emails, IP addresses, card numbers and tokens are masked before anything is sent to the assistant, including code from `get_code_context`. Results are capped at 200 lines (about 60,000 characters), so ask narrower questions if an answer looks cut off.
 
 ---
@@ -395,7 +450,7 @@ Example for lines like `2025-01-31T14:05:09 [ERROR] OrderService: message`:
 
 ## 🛑 Stop and restart
 
-Click your name in the top bar, then **Quit Log Analyser**. (Mac/Linux: you can also press Ctrl+C in the Terminal.) To start again, open the exe (or `run.sh`) as before. Your data is kept.
+Click **Quit Log Analyser** at the bottom of the sidebar. (Mac/Linux: you can also press Ctrl+C in the Terminal.) To start again, open the exe (or `run.sh`) as before. Your data is kept.
 
 ---
 
@@ -407,7 +462,7 @@ Check, in order: the environment card for **cannot read log files**; the log pat
 **The Logs page is empty, or a line I expect is missing.**
 It may be older than its retention (see the table above), or it is a Debug line and Debug is not stored by default.
 
-**Performance is empty.**
+**Endpoints is empty.**
 It needs ASP.NET `Request finished ... - 200 - ... 12.3ms` lines in your logs.
 
 **"Too many failed sign-in attempts".**

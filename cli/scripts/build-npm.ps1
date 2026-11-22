@@ -9,11 +9,11 @@ the command line can print.
 Usage:  ./scripts/build-npm.ps1                 # this computer's platform
         ./scripts/build-npm.ps1 -Rid linux-x64  # another platform
         ./scripts/build-npm.ps1 -SkipWebApp     # reuse the API's current wwwroot
-Install: npm install -g ./release/log-analyser-1.4.0-win-x64.tgz
+Install: npm install -g ./release/log-analyser-1.5.0-win-x64.tgz
 #>
 param(
     [string]$Rid = "",
-    [string]$Version = "",   # e.g. 1.4.0; defaults to package.json's version
+    [string]$Version = "",   # e.g. 1.5.0; defaults to package.json's version
     [switch]$SkipWebApp
 )
 
